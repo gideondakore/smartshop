@@ -10,6 +10,7 @@ enum UserRole {
   CUSTOMER
   ADMIN
   SELLER
+  VENDOR
 }
 
 type Product {

@@ -1,7 +1,9 @@
 package com.amalitech.smartshop.config;
 
+import com.amalitech.smartshop.entities.Session;
 import com.amalitech.smartshop.entities.User;
 import com.amalitech.smartshop.exceptions.UnauthorizedException;
+import com.amalitech.smartshop.interfaces.SessionService;
 import com.amalitech.smartshop.interfaces.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
@@ -20,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GraphQLAuthInterceptor implements WebGraphQlInterceptor {
 
+    private final SessionService sessionService;
     private final UserRepository userRepository;
     private static final List<String> PUBLIC_QUERIES = List.of("allProducts", "productById", "allCategories", "categoryById");
     private static final List<String> PUBLIC_MUTATIONS = List.of("login", "register");
@@ -27,11 +30,16 @@ public class GraphQLAuthInterceptor implements WebGraphQlInterceptor {
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
         String authHeader = request.getHeaders().getFirst("Authorization");
-        String operationName = request.getDocument();
+        String document = request.getDocument();
+
+        // Allow introspection queries (used by GraphQL clients like GraphiQL, Apollo, etc.)
+        if (document != null && (document.contains("__schema") || document.contains("IntrospectionQuery"))) {
+            return chain.next(request);
+        }
 
         // Check if it's a public query or mutation
-        boolean isPublic = PUBLIC_QUERIES.stream().anyMatch(op -> operationName != null && operationName.contains(op)) ||
-                PUBLIC_MUTATIONS.stream().anyMatch(op -> operationName != null && operationName.contains(op));
+        boolean isPublic = PUBLIC_QUERIES.stream().anyMatch(op -> document != null && document.contains(op)) ||
+                PUBLIC_MUTATIONS.stream().anyMatch(op -> document != null && document.contains(op));
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             if (isPublic) {
@@ -43,18 +51,15 @@ public class GraphQLAuthInterceptor implements WebGraphQlInterceptor {
         String token = authHeader.substring(7);
 
         try {
-            String[] parts = token.split("-");
-            if (parts.length != 2) {
-                if (isPublic) {
-                    return chain.next(request);
-                }
-                return Mono.error(new UnauthorizedException("Invalid token format"));
-            }
+            // Validate session using SessionService (same as REST API)
+            Session session = sessionService.validateSession(token)
+                    .orElseThrow(() -> new UnauthorizedException("Invalid or expired session"));
 
-            Long userId = Long.parseLong(parts[1]);
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UnauthorizedException("Invalid token - user not found"));
+            // Get user from session
+            User user = userRepository.findById(session.getUserId())
+                    .orElseThrow(() -> new UnauthorizedException("User not found"));
 
+            // Set user context for GraphQL resolvers
             request.configureExecutionInput((executionInput, builder) ->
                     builder.graphQLContext(context -> {
                         context.put("userId", user.getId());
@@ -63,11 +68,6 @@ public class GraphQLAuthInterceptor implements WebGraphQlInterceptor {
             );
 
             return chain.next(request);
-        } catch (NumberFormatException e) {
-            if (isPublic) {
-                return chain.next(request);
-            }
-            return Mono.error(new UnauthorizedException("Invalid token format"));
         } catch (UnauthorizedException e) {
             if (isPublic) {
                 return chain.next(request);

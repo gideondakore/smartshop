@@ -1,3 +1,5 @@
+import { graphqlRequest } from "@/lib/graphql";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
@@ -105,6 +107,19 @@ export const categoryApi = {
     fetchApi<PagedResponse<any>>(
       `/categories/public/all?page=${page}&size=${size}`,
     ),
+  getAllGraphQL: async () => {
+    const query = `
+      query {
+        allCategories {
+          id
+          name
+          description
+        }
+      }
+    `;
+    const data = await graphqlRequest(query);
+    return { data: { content: data.allCategories } };
+  },
   getById: (id: number) => fetchApi<any>(`/categories/${id}`),
   update: (id: number, data: { name?: string; description?: string }) =>
     fetchApi<any>(`/categories/update/${id}`, {
@@ -154,7 +169,37 @@ export const productApi = {
     if (params?.algorithm) query.append("algorithm", params.algorithm);
     return fetchApi<PagedResponse<any>>(`/products/public/all?${query}`);
   },
+  getAllGraphQL: async () => {
+    const query = `
+      query {
+        allProducts {
+          id
+          name
+          price
+          quantity
+          categoryName
+        }
+      }
+    `;
+    const data = await graphqlRequest(query);
+    return { data: { content: data.allProducts } };
+  },
   getById: (id: number) => fetchApi<any>(`/products/${id}`),
+  getByIdGraphQL: async (id: number) => {
+    const query = `
+      query {
+        productById(id: ${id}) {
+          id
+          name
+          price
+          quantity
+          categoryName
+        }
+      }
+    `;
+    const data = await graphqlRequest(query);
+    return { data: data.productById };
+  },
   update: (id: number, data: any) =>
     fetchApi<any>(`/products/update/${id}`, {
       method: "PUT",
