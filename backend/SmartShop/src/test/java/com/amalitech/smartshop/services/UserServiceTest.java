@@ -13,6 +13,7 @@ import com.amalitech.smartshop.cache.CacheManager;
 import com.amalitech.smartshop.interfaces.UserRepository;
 import com.amalitech.smartshop.interfaces.OrderRepository;
 import com.amalitech.smartshop.interfaces.OrderItemRepository;
+import com.amalitech.smartshop.interfaces.SessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
@@ -44,10 +45,13 @@ class UserServiceTest {
     @Mock
     private OrderItemRepository orderItemRepository;
 
+    @Mock
+    private SessionService sessionService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, userMapper, cacheManager, orderRepository, orderItemRepository);
+        userService = new UserServiceImpl(userRepository, userMapper, cacheManager, orderRepository, orderItemRepository, sessionService);
     }
 
     @Test
@@ -71,6 +75,7 @@ class UserServiceTest {
         when(userMapper.toEntity(dto)).thenReturn(entity);
         when(userRepository.save(any(User.class))).thenReturn(savedEntity);
         when(userMapper.toResponseDTO(savedEntity)).thenReturn(responseDTO);
+        when(sessionService.createSession(1L)).thenReturn("test-token");
 
         LoginResponseDTO result = userService.addUser(dto);
 
@@ -110,6 +115,7 @@ class UserServiceTest {
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
         when(userMapper.toResponseDTO(user)).thenReturn(expectedResponse);
+        when(sessionService.createSession(1L)).thenReturn("test-token");
 
         LoginResponseDTO actualResponse = userService.loginUser(loginDTO);
 

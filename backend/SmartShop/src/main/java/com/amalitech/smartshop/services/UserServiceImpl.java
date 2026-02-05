@@ -14,6 +14,7 @@ import com.amalitech.smartshop.interfaces.OrderItemRepository;
 import com.amalitech.smartshop.interfaces.OrderRepository;
 import com.amalitech.smartshop.interfaces.UserRepository;
 import com.amalitech.smartshop.interfaces.UserService;
+import com.amalitech.smartshop.interfaces.SessionService;
 import com.amalitech.smartshop.mappers.UserMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,8 @@ public class UserServiceImpl implements UserService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
+    private final SessionService sessionService;
+
     @Override
     public LoginResponseDTO addUser(UserRegistrationDTO userDTO) {
         log.info("Registering new user with email: {}", userDTO.getEmail());
@@ -56,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(user);
         LoginResponseDTO responseDTO = userMapper.toResponseDTO(savedUser);
-        responseDTO.setToken(generateToken(savedUser.getId()));
+        responseDTO.setToken(sessionService.createSession(savedUser.getId()));
         
         log.info("User registered successfully with id: {}", savedUser.getId());
         return responseDTO;
@@ -74,7 +77,7 @@ public class UserServiceImpl implements UserService {
         }
 
         LoginResponseDTO responseDTO = userMapper.toResponseDTO(user);
-        responseDTO.setToken(generateToken(user.getId()));
+        responseDTO.setToken(sessionService.createSession(user.getId()));
         
         log.info("User logged in successfully: {}", user.getId());
         return responseDTO;
@@ -139,11 +142,6 @@ public class UserServiceImpl implements UserService {
         cacheManager.invalidate("usr:" + email);
         
         log.info("User deleted successfully: {}", id);
-    }
-
-    private String generateToken(Long userId) {
-        String randomString = UUID.randomUUID().toString().replace("-", "");
-        return randomString + "-" + userId;
     }
 
     private void parseAndSetName(UpdateUserDTO userDTO) {

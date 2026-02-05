@@ -1,7 +1,9 @@
 package com.amalitech.smartshop.config;
 
+import com.amalitech.smartshop.entities.Session;
 import com.amalitech.smartshop.entities.User;
 import com.amalitech.smartshop.exceptions.UnauthorizedException;
+import com.amalitech.smartshop.interfaces.SessionService;
 import com.amalitech.smartshop.interfaces.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
+    private final SessionService sessionService;
     private final UserRepository userRepository;
 
     @Override
@@ -44,34 +47,22 @@ public class AuthInterceptor implements HandlerInterceptor {
         String token = authHeader.substring(7);
 
         try {
-            String[] parts = token.split("-");
-            if (parts.length != 2) {
-                if (isPublicEndpoint) {
-                    return true;
-                }
-                throw new UnauthorizedException("Invalid token format");
-            }
-            String userId = parts[1];
-            User user = userRepository.findById(Long.parseLong(userId))
-                    .orElseThrow(() -> new UnauthorizedException("Invalid token - user not found"));
-            request.setAttribute("authenticatedUserId", user.getId());
+            Session session = sessionService.validateSession(token)
+                    .orElseThrow(() -> new UnauthorizedException("Invalid or expired session"));
+            
+            User user = userRepository.findById(session.getUserId())
+                    .orElseThrow(() -> new UnauthorizedException("User not found"));
+            
+            request.setAttribute("authenticatedUserId", session.getUserId());
             request.setAttribute("authenticatedUserRole", user.getRole().name());
+            request.setAttribute("sessionToken", token);
+            
             return true;
-        } catch (NumberFormatException e) {
-            if (isPublicEndpoint) {
-                return true;
-            }
-            throw new UnauthorizedException("Invalid token format");
         } catch (UnauthorizedException e) {
             if (isPublicEndpoint) {
                 return true;
             }
             throw e;
-        } catch (Exception e) {
-            if (isPublicEndpoint) {
-                return true;
-            }
-            throw new UnauthorizedException("Invalid token");
         }
     }
 }

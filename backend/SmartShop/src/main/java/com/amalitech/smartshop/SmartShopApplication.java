@@ -2,6 +2,7 @@ package com.amalitech.smartshop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Main entry point for the SmartShop E-Commerce Application.
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * orders, and inventory.
  */
 @SpringBootApplication
+@EnableScheduling
 public class SmartShopApplication {
 
     public static void main(String[] args) {
