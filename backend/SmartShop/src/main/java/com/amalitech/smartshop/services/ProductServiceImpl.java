@@ -40,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
     private final CacheManager cacheManager;
 
     @Override
-    public ProductResponseDTO addProduct(AddProductDTO addProductDTO) {
+    public ProductResponseDTO addProduct(AddProductDTO addProductDTO, Long userId, String userRole) {
         log.info("Adding new product: {}", addProductDTO.getName());
         
         if (productRepository.existsByNameIgnoreCase(addProductDTO.getName())) {
@@ -52,6 +52,12 @@ public class ProductServiceImpl implements ProductService {
         
         Product product = productMapper.toEntity(addProductDTO);
         product.setCategoryId(addProductDTO.getCategoryId());
+        
+        // Set vendor ID if user is a vendor
+        if ("VENDOR".equals(userRole) && userId != null) {
+            product.setVendorId(userId);
+        }
+        
         Product savedProduct = productRepository.save(product);
         
         ProductResponseDTO response = productMapper.toResponseDTO(savedProduct);
@@ -82,6 +88,12 @@ public class ProductServiceImpl implements ProductService {
                 ? productRepository.findByCategoryId(categoryId, pageable)
                 : productRepository.findByCategoryIdWithInventory(categoryId, pageable);
 
+        return mapProductPageToResponse(productPage);
+    }
+
+    @Override
+    public Page<ProductResponseDTO> getProductsByVendor(Long vendorId, Pageable pageable) {
+        Page<Product> productPage = productRepository.findByVendorId(vendorId, pageable);
         return mapProductPageToResponse(productPage);
     }
 

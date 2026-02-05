@@ -37,8 +37,11 @@ public class ProductController {
     @Operation(summary = "Add a new product")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<ProductResponseDTO>> addProduct(@Valid @RequestBody AddProductDTO request) {
-        ProductResponseDTO product = productService.addProduct(request);
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> addProduct(
+            @Valid @RequestBody AddProductDTO request,
+            @RequestAttribute(value = "authenticatedUserId", required = false) Long userId,
+            @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole) {
+        ProductResponseDTO product = productService.addProduct(request, userId, userRole);
         ApiResponse<ProductResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Product added successfully", product);
         return ResponseEntity.ok(apiResponse);
     }
@@ -46,9 +49,12 @@ public class ProductController {
     @Operation(summary = "Add multiple products")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PostMapping("/add/bulk")
-    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> addProducts(@Valid @RequestBody List<AddProductDTO> requests) {
+    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> addProducts(
+            @Valid @RequestBody List<AddProductDTO> requests,
+            @RequestAttribute(value = "authenticatedUserId", required = false) Long userId,
+            @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole) {
         List<ProductResponseDTO> products = requests.stream()
-                .map(productService::addProduct)
+                .map(dto -> productService.addProduct(dto, userId, userRole))
                 .toList();
         ApiResponse<List<ProductResponseDTO>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(),
                 products.size() + " products added successfully", products);
@@ -59,9 +65,11 @@ public class ProductController {
     @GetMapping("/public/all")
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponseDTO>>> getAllProducts(
             @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole,
+            @RequestAttribute(value = "authenticatedUserId", required = false) Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "categoryId", required = false) Long categoryId,
+            @RequestParam(value = "vendorId", required = false) Long vendorId,
             @RequestParam(value = "sortBy", required = false) String sortBy,
             @RequestParam(value = "ascending", defaultValue = "true") boolean ascending,
             @RequestParam(value = "algorithm", defaultValue = "QUICKSORT") String algorithm
@@ -71,8 +79,15 @@ public class ProductController {
 
         boolean isAdmin = "ADMIN".equals(userRole);
 
+        // If user is VENDOR and no vendorId specified, show only their products
+        if ("VENDOR".equals(userRole) && vendorId == null) {
+            vendorId = userId;
+        }
+
         if (categoryId != null) {
             products = productService.getProductsByCategory(categoryId, pageable, isAdmin);
+        } else if (vendorId != null) {
+            products = productService.getProductsByVendor(vendorId, pageable);
         } else {
             products = productService.getAllProducts(pageable, isAdmin);
         }

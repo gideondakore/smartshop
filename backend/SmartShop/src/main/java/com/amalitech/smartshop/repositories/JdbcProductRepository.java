@@ -27,8 +27,11 @@ public class JdbcProductRepository implements ProductRepository {
         return Product.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .imageUrl(rs.getString("image_url"))
                 .sku(rs.getString("sku"))
                 .price(rs.getDouble("price"))
+                .vendorId(rs.getObject("vendor_id") != null ? rs.getLong("vendor_id") : null)
                 .available(rs.getBoolean("is_available"))
                 .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                 .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
@@ -82,13 +85,20 @@ public class JdbcProductRepository implements ProductRepository {
     }
 
     private Product insert(Product product) throws SQLException {
-        String sql = "INSERT INTO products (name, category_id, sku, price, is_available, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+        String sql = "INSERT INTO products (name, description, image_url, category_id, sku, price, vendor_id, is_available, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, product.getName());
-            ps.setLong(2, product.getCategoryId());
-            ps.setString(3, product.getSku());
-            ps.setDouble(4, product.getPrice());
-            ps.setBoolean(5, product.isAvailable());
+            ps.setString(2, product.getDescription());
+            ps.setString(3, product.getImageUrl());
+            ps.setLong(4, product.getCategoryId());
+            ps.setString(5, product.getSku());
+            ps.setDouble(6, product.getPrice());
+            if (product.getVendorId() != null) {
+                ps.setLong(7, product.getVendorId());
+            } else {
+                ps.setNull(7, java.sql.Types.BIGINT);
+            }
+            ps.setBoolean(8, product.isAvailable());
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -100,14 +110,21 @@ public class JdbcProductRepository implements ProductRepository {
     }
 
     private Product update(Product product) throws SQLException {
-        String sql = "UPDATE products SET name = ?, category_id = ?, sku = ?, price = ?, is_available = ?, updated_at = NOW() WHERE id = ?";
+        String sql = "UPDATE products SET name = ?, description = ?, image_url = ?, category_id = ?, sku = ?, price = ?, vendor_id = ?, is_available = ?, updated_at = NOW() WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, product.getName());
-            ps.setLong(2, product.getCategoryId());
-            ps.setString(3, product.getSku());
-            ps.setDouble(4, product.getPrice());
-            ps.setBoolean(5, product.isAvailable());
-            ps.setLong(6, product.getId());
+            ps.setString(2, product.getDescription());
+            ps.setString(3, product.getImageUrl());
+            ps.setLong(4, product.getCategoryId());
+            ps.setString(5, product.getSku());
+            ps.setDouble(6, product.getPrice());
+            if (product.getVendorId() != null) {
+                ps.setLong(7, product.getVendorId());
+            } else {
+                ps.setNull(7, java.sql.Types.BIGINT);
+            }
+            ps.setBoolean(8, product.isAvailable());
+            ps.setLong(9, product.getId());
             ps.executeUpdate();
         }
         return product;
@@ -160,6 +177,27 @@ public class JdbcProductRepository implements ProductRepository {
             throw new RuntimeException("Error finding products by category", e);
         }
         return products;
+    }
+
+    @Override
+    public Page<Product> findByVendorId(Long vendorId, Pageable pageable) {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE p.vendor_id = ? LIMIT ? OFFSET ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, vendorId);
+            ps.setInt(2, pageable.getPageSize());
+            ps.setInt(3, (int) pageable.getOffset());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    products.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding products by vendor", e);
+        }
+        
+        long total = countByVendor(vendorId);
+        return new PageImpl<>(products, pageable, total);
     }
 
     @Override
@@ -287,6 +325,21 @@ public class JdbcProductRepository implements ProductRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error counting products by category with inventory", e);
+        }
+        return 0;
+    }
+
+    private long countByVendor(Long vendorId) {
+        String countSql = "SELECT COUNT(*) FROM products WHERE vendor_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(countSql)) {
+            ps.setLong(1, vendorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting products by vendor", e);
         }
         return 0;
     }

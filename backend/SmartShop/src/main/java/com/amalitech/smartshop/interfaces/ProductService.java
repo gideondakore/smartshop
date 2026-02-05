@@ -17,9 +17,11 @@ public interface ProductService {
      * Add a new product.
      *
      * @param addProductDTO the product data
+     * @param userId the authenticated user ID
+     * @param userRole the authenticated user role
      * @return the created product response
      */
-    ProductResponseDTO addProduct(AddProductDTO addProductDTO);
+    ProductResponseDTO addProduct(AddProductDTO addProductDTO, Long userId, String userRole);
 
     /**
      * Get all products with pagination.
@@ -39,6 +41,15 @@ public interface ProductService {
      * @return a page of product responses
      */
     Page<ProductResponseDTO> getProductsByCategory(Long categoryId, Pageable pageable, boolean isAdmin);
+
+    /**
+     * Get products by vendor with pagination.
+     *
+     * @param vendorId the vendor ID
+     * @param pageable pagination information
+     * @return a page of product responses
+     */
+    Page<ProductResponseDTO> getProductsByVendor(Long vendorId, Pageable pageable);
 
     /**
      * Get a product by its ID.

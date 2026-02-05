@@ -11,6 +11,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<
     number | undefined
   >();
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -26,6 +27,13 @@ export default function Home() {
         setTotalPages(res.data.totalPages);
       });
   }, [page, selectedCategory]);
+
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.description &&
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())),
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -113,6 +121,13 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full md:w-1/2 border rounded px-4 py-2 mb-4"
+          />
           <label className="block mb-2 font-semibold">
             Filter by Category:
           </label>
@@ -136,8 +151,16 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow p-4">
+          {filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white rounded-lg shadow p-4 relative"
+            >
+              {product.quantity === 0 && (
+                <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                  OUT OF STOCK
+                </div>
+              )}
               {product.imageUrl && (
                 <img
                   src={product.imageUrl}
@@ -152,6 +175,11 @@ export default function Home() {
               <p className="text-xl font-bold text-green-600">
                 ${product.price}
               </p>
+              {product.quantity > 0 && product.quantity < 10 && (
+                <p className="text-orange-600 text-sm mt-2">
+                  Only {product.quantity} left!
+                </p>
+              )}
               <Link
                 href={`/products/${product.id}`}
                 className="mt-4 block text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700"

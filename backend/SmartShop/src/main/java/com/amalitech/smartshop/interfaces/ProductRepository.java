@@ -69,6 +69,15 @@ public interface ProductRepository {
     List<Product> findByCategoryId(Long categoryId);
 
     /**
+     * Find all products by vendor ID with pagination.
+     *
+     * @param vendorId the vendor ID
+     * @param pageable pagination information
+     * @return a page of products owned by the vendor
+     */
+    Page<Product> findByVendorId(Long vendorId, Pageable pageable);
+
+    /**
      * Find all products that have inventory with pagination.
      *
      * @param pageable pagination information

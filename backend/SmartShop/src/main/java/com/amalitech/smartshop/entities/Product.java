@@ -17,9 +17,12 @@ import java.time.LocalDateTime;
 public class Product {
     private Long id;
     private String name;
+    private String description;
+    private String imageUrl;
     private Long categoryId;
     private String sku;
     private Double price;
+    private Long vendorId;
     @Builder.Default
     private boolean available = true;
     private LocalDateTime createdAt;

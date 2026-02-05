@@ -9,6 +9,8 @@ import lombok.Data;
 public class AddProductDTO {
     @NotBlank(message = "Product name is required")
     private String name;
+    private String description;
+    private String imageUrl;
     @NotNull(message = "Category ID is required")
     private Long categoryId;
     @NotBlank(message = "SKU is required")

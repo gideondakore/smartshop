@@ -41,7 +41,12 @@ public class ProductGraphQLController {
         dto.setCategoryId(input.categoryId());
         dto.setSku(input.sku());
         dto.setPrice(input.price());
-        return productService.addProduct(dto);
+        
+        // Get user context from GraphQL
+        Long userId = env.getGraphQlContext().get("userId");
+        String userRole = env.getGraphQlContext().get("userRole");
+        
+        return productService.addProduct(dto, userId, userRole);
     }
 
     @MutationMapping
