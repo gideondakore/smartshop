@@ -139,4 +139,6 @@ DATABASE_PASSWORD=your_password
 
 ---
 
+## mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
 _Note: This documentation focuses on the Java backend. For frontend documentation, please refer to the `/frontend` directory._

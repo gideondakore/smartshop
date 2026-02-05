@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * Represents a user in the SmartShop e-commerce system.
- * Users can have different roles: ADMIN, SELLER, or CUSTOMER.
+ * Users can have different roles: ADMIN, VENDOR, or CUSTOMER.
  */
 @Data
 @Builder

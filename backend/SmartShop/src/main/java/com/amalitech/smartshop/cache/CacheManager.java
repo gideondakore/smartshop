@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 @Component
@@ -15,7 +16,7 @@ public class CacheManager {
     private static final int MAX_CACHE_SIZE = 1000;
     private static final long TTL_SECONDS = 300; // 5 minutes
 
-    private final ConcurrentHashMap<String, CacheEntry> cache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry> cache = new HashMap<>();
     private final PerformanceMonitoringAspect performanceMonitor;
 
     public CacheManager(PerformanceMonitoringAspect performanceMonitor) {
@@ -23,7 +24,7 @@ public class CacheManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T get(String key, Supplier<T> supplier) {
+    public synchronized <T> T get(String key, Supplier<T> supplier) {
         CacheEntry entry = cache.get(key);
 
         if (entry != null && !entry.isExpired()) {
@@ -44,7 +45,7 @@ public class CacheManager {
         return value;
     }
 
-    public void invalidate(String key) {
+    public synchronized void invalidate(String key) {
         cache.remove(key);
         log.info("Cache INVALIDATE: {}", key);
     }

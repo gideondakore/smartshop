@@ -26,25 +26,25 @@ public class InventoryGraphQLController {
     private final InventoryService inventoryService;
 
     @QueryMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public List<InventoryResponseDTO> allInventories(DataFetchingEnvironment env) {
         return inventoryService.getAllInventories(Pageable.unpaged()).getContent();
     }
 
     @QueryMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public InventoryResponseDTO inventoryById(@Argument Long id, DataFetchingEnvironment env) {
         return inventoryService.getInventoryById(id);
     }
 
     @QueryMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public InventoryResponseDTO inventoryByProductId(@Argument Long productId, DataFetchingEnvironment env) {
         return inventoryService.getInventoryByProductId(productId);
     }
 
     @MutationMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public InventoryResponseDTO addInventory(@Argument AddInventoryInput input, DataFetchingEnvironment env) {
         AddInventoryDTO dto = new AddInventoryDTO();
         dto.setProductId(input.productId());
@@ -54,7 +54,7 @@ public class InventoryGraphQLController {
     }
 
     @MutationMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public InventoryResponseDTO updateInventory(@Argument Long id, @Argument UpdateInventoryInput input, DataFetchingEnvironment env) {
         UpdateInventoryDTO dto = new UpdateInventoryDTO();
         dto.setQuantity(input.quantity());

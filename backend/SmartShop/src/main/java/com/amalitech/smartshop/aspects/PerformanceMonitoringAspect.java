@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Aspect
@@ -16,8 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class PerformanceMonitoringAspect {
 
-    private final Map<String, QueryMetrics> dbMetrics = new ConcurrentHashMap<>();
-    private final Map<String, CacheMetrics> cacheMetrics = new ConcurrentHashMap<>();
+    private final Map<String, QueryMetrics> dbMetrics = new HashMap<>();
+    private final Map<String, CacheMetrics> cacheMetrics = new HashMap<>();
 
     @Around("execution(* com.amalitech.smartshop.repositories..*(..))")
     public Object monitorDatabaseFetch(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -32,21 +31,25 @@ public class PerformanceMonitoringAspect {
             Object result = joinPoint.proceed();
             long executionTime = System.currentTimeMillis() - startTime;
 
-            dbMetrics.computeIfAbsent(fullKey, k -> new QueryMetrics())
-                    .recordExecution(executionTime);
+            synchronized (dbMetrics) {
+                dbMetrics.computeIfAbsent(fullKey, k -> new QueryMetrics())
+                        .recordExecution(executionTime);
+            }
 
             log.info("DB Query: {} took {}ms", fullKey, executionTime);
 
             return result;
         } catch (Exception e) {
             long executionTime = System.currentTimeMillis() - startTime;
-            dbMetrics.computeIfAbsent(fullKey + "_ERROR", k -> new QueryMetrics())
-                    .recordExecution(executionTime);
+            synchronized (dbMetrics) {
+                dbMetrics.computeIfAbsent(fullKey + "_ERROR", k -> new QueryMetrics())
+                        .recordExecution(executionTime);
+            }
             throw e;
         }
     }
 
-    public Map<String, Map<String, Object>> getDbFetchTimes() {
+    public synchronized Map<String, Map<String, Object>> getDbFetchTimes() {
         Map<String, Map<String, Object>> result = new HashMap<>();
         dbMetrics.forEach((key, metrics) -> {
             Map<String, Object> metricData = new HashMap<>();
@@ -61,20 +64,24 @@ public class PerformanceMonitoringAspect {
         return result;
     }
 
-    public void clearMetrics() {
+    public synchronized void clearMetrics() {
         dbMetrics.clear();
         cacheMetrics.clear();
     }
 
     public void recordCacheHit(String key) {
-        cacheMetrics.computeIfAbsent(key, k -> new CacheMetrics()).incrementHit();
+        synchronized (cacheMetrics) {
+            cacheMetrics.computeIfAbsent(key, k -> new CacheMetrics()).incrementHit();
+        }
     }
 
     public void recordCacheMiss(String key) {
-        cacheMetrics.computeIfAbsent(key, k -> new CacheMetrics()).incrementMiss();
+        synchronized (cacheMetrics) {
+            cacheMetrics.computeIfAbsent(key, k -> new CacheMetrics()).incrementMiss();
+        }
     }
 
-    public Map<String, Map<String, Object>> getCacheMetrics() {
+    public synchronized Map<String, Map<String, Object>> getCacheMetrics() {
         Map<String, Map<String, Object>> result = new HashMap<>();
         cacheMetrics.forEach((key, metrics) -> {
             Map<String, Object> metricData = new HashMap<>();

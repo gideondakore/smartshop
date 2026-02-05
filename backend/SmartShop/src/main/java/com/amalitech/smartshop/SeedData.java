@@ -43,14 +43,14 @@ public class SeedData implements CommandLineRunner {
             admin.setRole(UserRole.ADMIN);
             userRepository.save(admin);
 
-            // Seller user
-            User seller = new User();
-            seller.setFirstName("John");
-            seller.setLastName("Seller");
-            seller.setEmail("seller@smartshop.com");
-            seller.setPassword(BCrypt.hashpw("seller123", BCrypt.gensalt()));
-            seller.setRole(UserRole.SELLER);
-            userRepository.save(seller);
+            // Vendor user
+            User vendor = new User();
+            vendor.setFirstName("John");
+            vendor.setLastName("Vendor");
+            vendor.setEmail("vendor@smartshop.com");
+            vendor.setPassword(BCrypt.hashpw("vendor123", BCrypt.gensalt()));
+            vendor.setRole(UserRole.VENDOR);
+            userRepository.save(vendor);
 
             // Customer users
             User customer1 = new User();
@@ -93,13 +93,13 @@ public class SeedData implements CommandLineRunner {
             customer5.setRole(UserRole.CUSTOMER);
             userRepository.save(customer5);
 
-            User seller2 = new User();
-            seller2.setFirstName("Robert");
-            seller2.setLastName("Wilson");
-            seller2.setEmail("robert.wilson@smartshop.com");
-            seller2.setPassword(BCrypt.hashpw("seller123", BCrypt.gensalt()));
-            seller2.setRole(UserRole.SELLER);
-            userRepository.save(seller2);
+            User vendor2 = new User();
+            vendor2.setFirstName("Robert");
+            vendor2.setLastName("Wilson");
+            vendor2.setEmail("robert.wilson@smartshop.com");
+            vendor2.setPassword(BCrypt.hashpw("vendor123", BCrypt.gensalt()));
+            vendor2.setRole(UserRole.VENDOR);
+            userRepository.save(vendor2);
 
             User customer6 = new User();
             customer6.setFirstName("Lisa");

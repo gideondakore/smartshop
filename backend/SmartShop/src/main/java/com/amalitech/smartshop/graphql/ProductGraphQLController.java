@@ -34,7 +34,7 @@ public class ProductGraphQLController {
     }
 
     @MutationMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public ProductResponseDTO addProduct(@Argument AddProductInput input, DataFetchingEnvironment env) {
         AddProductDTO dto = new AddProductDTO();
         dto.setName(input.name());
@@ -45,7 +45,7 @@ public class ProductGraphQLController {
     }
 
     @MutationMapping
-    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.SELLER})
+    @GraphQLRequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     public boolean deleteProduct(@Argument Long id, DataFetchingEnvironment env) {
         productService.deleteProduct(id);
         return true;

@@ -1,154 +1,216 @@
 type User {
-    id: ID!
-    firstName: String!
-    lastName: String!
-    email: String!
-    role: UserRole!
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  role: UserRole!
 }
 
 enum UserRole {
-    CUSTOMER
-    ADMIN
-    SELLER
+  CUSTOMER
+  ADMIN
+  SELLER
 }
 
 type Product {
-    id: ID!
-    name: String!
-    price: Float!
-    quantity: Int
-    categoryName: String
+  id: ID!
+  name: String!
+  price: Float!
+  quantity: Int
+  categoryName: String
 }
 
 type Inventory {
-    id: ID!
-    productId: ID!
-    productName: String!
-    quantity: Int!
-    location: String!
+  id: ID!
+  productId: ID!
+  productName: String!
+  quantity: Int!
+  location: String!
 }
 
 type Category {
-    id: ID!
-    name: String!
-    description: String!
+  id: ID!
+  name: String!
+  description: String!
 }
 
 type Order {
-    id: ID!
-    userId: ID!
-    totalAmount: Float!
-    status: OrderStatus!
-    items: [OrderItem!]!
+  id: ID!
+  userId: ID!
+  totalAmount: Float!
+  status: OrderStatus!
+  items: [OrderItem!]!
 }
 
 type OrderItem {
-    id: ID!
-    productId: ID!
-    productName: String!
-    quantity: Int!
-    totalPrice: Float!
+  id: ID!
+  productId: ID!
+  productName: String!
+  quantity: Int!
+  totalPrice: Float!
 }
 
 enum OrderStatus {
-    PENDING
-    PROCESSING
-    SHIPPED
-    DELIVERED
-    CANCELLED
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+type Review {
+  id: ID!
+  productId: ID!
+  productName: String!
+  userId: ID!
+  userName: String!
+  rating: Int!
+  comment: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CartItem {
+  id: ID!
+  productId: ID!
+  productName: String!
+  productPrice: Float!
+  quantity: Int!
+  totalPrice: Float!
+}
+
+type Cart {
+  id: ID!
+  userId: ID!
+  items: [CartItem!]!
+  totalAmount: Float!
+  totalItems: Int!
 }
 
 input AddProductInput {
-    name: String!
-    categoryId: ID!
-    sku: String!
-    price: Float!
+  name: String!
+  categoryId: ID!
+  sku: String!
+  price: Float!
 }
 
 input AddInventoryInput {
-    productId: ID!
-    quantity: Int!
-    location: String!
+  productId: ID!
+  quantity: Int!
+  location: String!
 }
 
 input UpdateInventoryInput {
-    quantity: Int
-    location: String
+  quantity: Int
+  location: String
 }
 
 input AddCategoryInput {
-    name: String!
-    description: String!
+  name: String!
+  description: String!
 }
 
 input UpdateCategoryInput {
-    name: String
-    description: String
+  name: String
+  description: String
 }
 
 input OrderItemInput {
-    productId: ID!
-    quantity: Int!
+  productId: ID!
+  quantity: Int!
 }
 
 input AddOrderInput {
-    userId: ID!
-    items: [OrderItemInput!]!
+  userId: ID!
+  items: [OrderItemInput!]!
 }
 
 input UpdateOrderInput {
-    status: OrderStatus!
+  status: OrderStatus!
+}
+
+input AddReviewInput {
+  productId: ID!
+  rating: Int!
+  comment: String
+}
+
+input UpdateReviewInput {
+  rating: Int
+  comment: String
+}
+
+input AddCartItemInput {
+  productId: ID!
+  quantity: Int!
+}
+
+input UpdateCartItemInput {
+  quantity: Int!
 }
 
 input LoginInput {
-    email: String!
-    password: String!
+  email: String!
+  password: String!
 }
 
 input RegisterInput {
-    firstName: String!
-    lastName: String!
-    email: String!
-    password: String!
-    role: UserRole!
+  firstName: String!
+  lastName: String!
+  email: String!
+  password: String!
+  role: UserRole!
 }
 
 type AuthResponse {
-    token: String!
-    id: ID!
-    email: String!
-    firstName: String!
-    lastName: String!
-    role: String!
+  token: String!
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  role: String!
 }
 
 type Query {
-    getUserById(id: ID!): User
-    getAllUsers: [User!]!
-    allProducts: [Product]
-    productById(id: ID!): Product
-    allInventories: [Inventory!]!
-    inventoryById(id: ID!): Inventory
-    inventoryByProductId(productId: ID!): Inventory
-    allCategories: [Category!]!
-    categoryById(id: ID!): Category
-    allOrders: [Order!]!
-    orderById(id: ID!): Order
-    ordersByUserId(userId: ID!): [Order!]!
+  getUserById(id: ID!): User
+  getAllUsers: [User!]!
+  allProducts: [Product]
+  productById(id: ID!): Product
+  allInventories: [Inventory!]!
+  inventoryById(id: ID!): Inventory
+  inventoryByProductId(productId: ID!): Inventory
+  allCategories: [Category!]!
+  categoryById(id: ID!): Category
+  allOrders: [Order!]!
+  orderById(id: ID!): Order
+  ordersByUserId(userId: ID!): [Order!]!
+  allReviews: [Review!]!
+  reviewById(id: ID!): Review
+  reviewsByProductId(productId: ID!): [Review!]!
+  reviewsByUserId(userId: ID!): [Review!]!
+  getCart: Cart
 }
 
 type Mutation {
-    login(input: LoginInput!): AuthResponse!
-    register(input: RegisterInput!): AuthResponse!
-    addProduct(input: AddProductInput!): Product!
-    deleteProduct(id: ID!): Boolean!
-    addInventory(input: AddInventoryInput!): Inventory!
-    updateInventory(id: ID!, input: UpdateInventoryInput!): Inventory!
-    deleteInventory(id: ID!): Boolean!
-    addCategory(input: AddCategoryInput!): Category!
-    updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-    deleteCategory(id: ID!): Boolean!
-    createOrder(input: AddOrderInput!): Order!
-    updateOrderStatus(id: ID!, input: UpdateOrderInput!): Order!
-    deleteOrder(id: ID!): Boolean!
+  login(input: LoginInput!): AuthResponse!
+  register(input: RegisterInput!): AuthResponse!
+  addProduct(input: AddProductInput!): Product!
+  deleteProduct(id: ID!): Boolean!
+  addInventory(input: AddInventoryInput!): Inventory!
+  updateInventory(id: ID!, input: UpdateInventoryInput!): Inventory!
+  deleteInventory(id: ID!): Boolean!
+  addCategory(input: AddCategoryInput!): Category!
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  deleteCategory(id: ID!): Boolean!
+  createOrder(input: AddOrderInput!): Order!
+  updateOrderStatus(id: ID!, input: UpdateOrderInput!): Order!
+  deleteOrder(id: ID!): Boolean!
+  addReview(input: AddReviewInput!): Review!
+  updateReview(id: ID!, input: UpdateReviewInput!): Review!
+  deleteReview(id: ID!): Boolean!
+  addItemToCart(input: AddCartItemInput!): Cart!
+  updateCartItem(itemId: ID!, input: UpdateCartItemInput!): Cart!
+  removeItemFromCart(itemId: ID!): Cart!
+  clearCart: Boolean!
+  checkoutCart: Order!
 }
