@@ -31,7 +31,7 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @Operation(summary = "Add inventory")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<InventoryResponseDTO>> addInventory(@Valid @RequestBody AddInventoryDTO request) {
         InventoryResponseDTO inventory = inventoryService.addInventory(request);
@@ -40,7 +40,7 @@ public class InventoryController {
     }
 
     @Operation(summary = "Get all inventories")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<PagedResponse<InventoryResponseDTO>>> getAllInventories(
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -76,7 +76,7 @@ public class InventoryController {
     }
 
     @Operation(summary = "Update inventory")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<InventoryResponseDTO>> updateInventory(
             @PathVariable Long id,
@@ -87,7 +87,7 @@ public class InventoryController {
     }
 
     @Operation(summary = "Adjust inventory quantity")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PatchMapping("/adjust/{id}")
     public ResponseEntity<ApiResponse<InventoryResponseDTO>> adjustInventoryQuantity(
             @PathVariable Long id,

@@ -35,7 +35,7 @@ public class ProductController {
     private final SortingService sortingService;
 
     @Operation(summary = "Add a new product")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<ProductResponseDTO>> addProduct(@Valid @RequestBody AddProductDTO request) {
         ProductResponseDTO product = productService.addProduct(request);
@@ -44,7 +44,7 @@ public class ProductController {
     }
 
     @Operation(summary = "Add multiple products")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PostMapping("/add/bulk")
     public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> addProducts(@Valid @RequestBody List<AddProductDTO> requests) {
         List<ProductResponseDTO> products = requests.stream()
@@ -110,7 +110,7 @@ public class ProductController {
     }
 
     @Operation(summary = "Update a product")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<ProductResponseDTO>> updateProduct(
             @PathVariable Long id,
@@ -121,7 +121,7 @@ public class ProductController {
     }
 
     @Operation(summary = "Delete a product")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

@@ -49,7 +49,7 @@ public class OrderController {
     }
 
     @Operation(summary = "Get all orders")
-    @RequiresRole(UserRole.ADMIN)
+    @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<PagedResponse<OrderResponseDTO>>> getAllOrders(
             @RequestParam(value = "page", defaultValue = "0") int page,
