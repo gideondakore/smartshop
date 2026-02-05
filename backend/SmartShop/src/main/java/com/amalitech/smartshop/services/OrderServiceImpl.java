@@ -94,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable).map(order ->
-                cacheManager.get("order:" + order.getId(), () -> {
+                cacheManager.get("ord:" + order.getId(), () -> {
                     List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
                     return buildOrderResponse(order, items);
                 })
@@ -107,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
         return orderRepository.findByUserId(userId, pageable).map(order ->
-                cacheManager.get("order:" + order.getId(), () -> {
+                cacheManager.get("ord:" + order.getId(), () -> {
                     List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
                     return buildOrderResponse(order, items);
                 })
@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order updatedOrder = orderRepository.save(order);
-        cacheManager.invalidate("order:" + id);
+        cacheManager.invalidate("ord:" + id);
 
         List<OrderItem> items = orderItemRepository.findByOrderId(updatedOrder.getId());
         
@@ -156,7 +156,7 @@ public class OrderServiceImpl implements OrderService {
             orderItemRepository.deleteAll(items);
             orderRepository.delete(order);
 
-            cacheManager.invalidate("order:" + id);
+            cacheManager.invalidate("ord:" + id);
             log.info("Order deleted successfully: {}", id);
         } catch (Exception ex) {
             if (ex.getMessage() != null && ex.getMessage().contains("foreign key constraint")) {
@@ -190,9 +190,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void invalidateProductCache(Long productId) {
-        cacheManager.invalidate("product:" + productId);
-        cacheManager.invalidate("inventory:product:" + productId);
-        cacheManager.invalidate("inventory:quantity:" + productId);
+        cacheManager.invalidate("prod:" + productId);
+        cacheManager.invalidate("invent:" + productId);
+        cacheManager.invalidate("invent:" + productId);
     }
 
     private OrderResponseDTO buildOrderResponse(Order order, List<OrderItem> items) {

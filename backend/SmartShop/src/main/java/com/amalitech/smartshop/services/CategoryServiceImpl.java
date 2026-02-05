@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Page<CategoryResponseDTO> getAllCategories(Pageable pageable) {
         return categoryRepository.findAll(pageable).map(category -> {
             CategoryResponseDTO dto = categoryMapper.toResponseDTO(category);
-            cacheManager.get("category:" + category.getId(), () -> category);
+            cacheManager.get("cat:" + category.getId(), () -> category);
             return dto;
         });
     }
@@ -79,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.updateEntity(updateCategoryDTO, existingCategory);
         Category updatedCategory = categoryRepository.save(existingCategory);
 
-        cacheManager.invalidate("category:" + id);
+        cacheManager.invalidate("cat:" + id);
 
         log.info("Category updated successfully: {}", id);
         return categoryMapper.toResponseDTO(updatedCategory);
@@ -97,11 +97,11 @@ public class CategoryServiceImpl implements CategoryService {
         for (Product product : products) {
             deleteProductInventory(product);
             productRepository.delete(product);
-            cacheManager.invalidate("product:" + product.getId());
+            cacheManager.invalidate("prod:" + product.getId());
         }
 
         categoryRepository.delete(category);
-        cacheManager.invalidate("category:" + id);
+        cacheManager.invalidate("cat:" + id);
         
         log.info("Category deleted successfully: {}", id);
     }
@@ -118,9 +118,9 @@ public class CategoryServiceImpl implements CategoryService {
         inventoryRepository.findByProductId(product.getId())
                 .ifPresent(inventory -> {
                     inventoryRepository.delete(inventory);
-                    cacheManager.invalidate("inventory:" + inventory.getId());
-                    cacheManager.invalidate("inventory:product:" + product.getId());
-                    cacheManager.invalidate("inventory:quantity:" + product.getId());
+                    cacheManager.invalidate("invent:" + inventory.getId());
+                    cacheManager.invalidate("invent:" + product.getId());
+                    cacheManager.invalidate("invent:" + product.getId());
                 });
     }
 }

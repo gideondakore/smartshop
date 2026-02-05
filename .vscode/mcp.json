@@ -5,23 +5,10 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres@0.6.2",
-        "${input:postgres_url}"
+        "postgresql://spycon:myPassword@localhost:5432/ecommerce_db"
       ],
       "env": {},
       "type": "stdio"
     }
-  },
-  "inputs": [
-    {
-      "type": "promptString",
-      "id": "postgres-password",
-      "description": "PostgreSQL Password",
-      "password": true
-    },
-    {
-      "id": "postgres_url",
-      "type": "promptString",
-      "description": "PostgreSQL connection URL"
-    }
-  ]
+  }
 }

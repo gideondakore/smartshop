@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserSummaryDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(user ->
-                cacheManager.get("user:" + user.getId(), () -> {
+                cacheManager.get("usr:" + user.getId(), () -> {
                     UserSummaryDTO summary = userMapper.toSummaryDTO(user);
                     summary.setName(user.getFullName());
                     return summary;
@@ -131,12 +131,12 @@ public class UserServiceImpl implements UserService {
         for (Order order : orders) {
             orderItemRepository.deleteAll(orderItemRepository.findByOrderId(order.getId()));
             orderRepository.delete(order);
-            cacheManager.invalidate("order:" + order.getId());
+            cacheManager.invalidate("ord:" + order.getId());
         }
 
         userRepository.delete(user);
-        cacheManager.invalidate("user:" + id);
-        cacheManager.invalidate("user:email:" + email);
+        cacheManager.invalidate("usr:" + id);
+        cacheManager.invalidate("usr:" + email);
         
         log.info("User deleted successfully: {}", id);
     }
@@ -155,10 +155,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private void invalidateUserCache(Long id, String oldEmail, String newEmail) {
-        cacheManager.invalidate("user:" + id);
-        cacheManager.invalidate("user:email:" + oldEmail);
+        cacheManager.invalidate("usr:" + id);
+        cacheManager.invalidate("usr:" + oldEmail);
         if (newEmail != null && !oldEmail.equals(newEmail)) {
-            cacheManager.invalidate("user:email:" + newEmail);
+            cacheManager.invalidate("usr:" + newEmail);
         }
     }
 }

@@ -4,7 +4,6 @@ import com.amalitech.smartshop.config.GraphQLRequiresRole;
 import com.amalitech.smartshop.dtos.requests.AddCartItemDTO;
 import com.amalitech.smartshop.dtos.requests.UpdateCartItemDTO;
 import com.amalitech.smartshop.dtos.responses.CartResponseDTO;
-import com.amalitech.smartshop.dtos.responses.OrderResponseDTO;
 import com.amalitech.smartshop.enums.UserRole;
 import com.amalitech.smartshop.interfaces.CartService;
 import graphql.schema.DataFetchingEnvironment;

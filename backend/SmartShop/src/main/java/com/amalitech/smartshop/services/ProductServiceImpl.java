@@ -145,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAllWithInventory().stream()
                 .map(product -> {
                     ProductResponseDTO response = productMapper.toResponseDTO(product);
-                    Integer quantity = cacheManager.get("inventory:quantity:" + product.getId(), () ->
+                    Integer quantity = cacheManager.get("invent:" + product.getId(), () ->
                             inventoryRepository.findByProductId(product.getId())
                                     .map(Inventory::getQuantity)
                                     .orElse(null)
@@ -180,14 +180,14 @@ public class ProductServiceImpl implements ProductService {
         return productPage.map(product -> {
             ProductResponseDTO response = productMapper.toResponseDTO(product);
 
-            Category category = cacheManager.get("category:" + product.getCategoryId(), () ->
+            Category category = cacheManager.get("cat:" + product.getCategoryId(), () ->
                     categoryRepository.findById(product.getCategoryId()).orElse(null)
             );
             if (category != null) {
                 response.setCategoryName(category.getName());
             }
 
-            Integer quantity = cacheManager.get("inventory:quantity:" + product.getId(), () ->
+            Integer quantity = cacheManager.get("invent:" + product.getId(), () ->
                     inventoryRepository.findByProductId(product.getId())
                             .map(Inventory::getQuantity)
                             .orElse(0)
@@ -214,7 +214,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void invalidateProductCache(Long productId) {
-        cacheManager.invalidate("product:" + productId);
-        cacheManager.invalidate("inventory:quantity:" + productId);
+        cacheManager.invalidate("prod:" + productId);
+        cacheManager.invalidate("invent:" + productId);
     }
 }

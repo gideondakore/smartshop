@@ -55,13 +55,14 @@ public class InventoryServiceImpl implements InventoryService {
         enrichResponseWithProductName(response, savedInventory.getProductId());
         
         log.info("Inventory added successfully with id: {}", savedInventory.getId());
+        cacheManager.invalidate("invent:" + addInventoryDTO.getProductId());
         return response;
     }
 
     @Override
     public Page<InventoryResponseDTO> getAllInventories(Pageable pageable) {
         return inventoryRepository.findAll(pageable)
-                .map(inventory -> cacheManager.get("inventory:" + inventory.getId(), () -> {
+                .map(inventory -> cacheManager.get("invent:" + inventory.getId(), () -> {
                     InventoryResponseDTO response = inventoryMapper.toResponseDTO(inventory);
                     enrichResponseWithProductName(response, inventory.getProductId());
                     return response;
@@ -160,9 +161,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     private void invalidateInventoryCache(Long inventoryId, Long productId) {
-        cacheManager.invalidate("inventory:" + inventoryId);
-        cacheManager.invalidate("inventory:product:" + productId);
-        cacheManager.invalidate("inventory:quantity:" + productId);
-        cacheManager.invalidate("product:" + productId);
+        cacheManager.invalidate("invent:" + inventoryId);
+        cacheManager.invalidate("invent:" + productId);
+        cacheManager.invalidate("invent:" + productId);
+        cacheManager.invalidate("prod:" + productId);
     }
 }

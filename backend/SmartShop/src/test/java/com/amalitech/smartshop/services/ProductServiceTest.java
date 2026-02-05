@@ -74,7 +74,7 @@ class ProductServiceTest {
         when(productMapper.toResponseDTO(savedEntity)).thenReturn(responseDTO);
         when(inventoryRepository.findByProductId(1L)).thenReturn(Optional.empty());
 
-        ProductResponseDTO result = productService.addProduct(dto);
+        ProductResponseDTO result = productService.addProduct(dto, 1L, "VENDOR");
 
         assertNotNull(result);
         verify(productRepository).save(entity);
@@ -87,7 +87,7 @@ class ProductServiceTest {
 
         when(productRepository.existsByNameIgnoreCase("Laptop")).thenReturn(true);
 
-        assertThrows(ResourceAlreadyExistsException.class, () -> productService.addProduct(dto));
+        assertThrows(ResourceAlreadyExistsException.class, () -> productService.addProduct(dto, 1L, "VENDOR"));
     }
 
     @Test
@@ -99,7 +99,7 @@ class ProductServiceTest {
         when(productRepository.existsByNameIgnoreCase("Laptop")).thenReturn(false);
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> productService.addProduct(dto));
+        assertThrows(ResourceNotFoundException.class, () -> productService.addProduct(dto, 1L, "VENDOR"));
     }
 
     @Test
