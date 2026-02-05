@@ -1,0 +1,208 @@
+package com.amalitech.smartshop.services;
+
+import com.amalitech.smartshop.cache.CacheManager;
+import com.amalitech.smartshop.dtos.requests.AddProductDTO;
+import com.amalitech.smartshop.dtos.requests.UpdateProductDTO;
+import com.amalitech.smartshop.dtos.responses.ProductResponseDTO;
+import com.amalitech.smartshop.entities.Category;
+import com.amalitech.smartshop.entities.Inventory;
+import com.amalitech.smartshop.entities.Product;
+import com.amalitech.smartshop.exceptions.ConstraintViolationException;
+import com.amalitech.smartshop.exceptions.ResourceAlreadyExistsException;
+import com.amalitech.smartshop.exceptions.ResourceNotFoundException;
+import com.amalitech.smartshop.interfaces.CategoryRepository;
+import com.amalitech.smartshop.interfaces.InventoryRepository;
+import com.amalitech.smartshop.interfaces.ProductRepository;
+import com.amalitech.smartshop.interfaces.ProductService;
+import com.amalitech.smartshop.mappers.ProductMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * Implementation of the ProductService interface.
+ * Handles all product-related business logic including CRUD operations
+ * and inventory management.
+ */
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class ProductServiceImpl implements ProductService {
+    
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+    private final CategoryRepository categoryRepository;
+    private final InventoryRepository inventoryRepository;
+    private final CacheManager cacheManager;
+
+    @Override
+    public ProductResponseDTO addProduct(AddProductDTO addProductDTO) {
+        log.info("Adding new product: {}", addProductDTO.getName());
+        
+        if (productRepository.existsByNameIgnoreCase(addProductDTO.getName())) {
+            throw new ResourceAlreadyExistsException("Product already exists");
+        }
+        
+        Category category = categoryRepository.findById(addProductDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + addProductDTO.getCategoryId()));
+        
+        Product product = productMapper.toEntity(addProductDTO);
+        product.setCategoryId(addProductDTO.getCategoryId());
+        Product savedProduct = productRepository.save(product);
+        
+        ProductResponseDTO response = productMapper.toResponseDTO(savedProduct);
+        response.setCategoryName(category.getName());
+        
+        inventoryRepository.findByProductId(savedProduct.getId())
+                .ifPresent(inventory -> response.setQuantity(inventory.getQuantity()));
+
+        log.info("Product added successfully with id: {}", savedProduct.getId());
+        return response;
+    }
+
+    @Override
+    public Page<ProductResponseDTO> getAllProducts(Pageable pageable, boolean isAdmin) {
+        Page<Product> productPage = isAdmin
+                ? productRepository.findAll(pageable)
+                : productRepository.findAllWithInventory(pageable);
+
+        return mapProductPageToResponse(productPage);
+    }
+
+    @Override
+    public Page<ProductResponseDTO> getProductsByCategory(Long categoryId, Pageable pageable, boolean isAdmin) {
+        categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
+
+        Page<Product> productPage = isAdmin
+                ? productRepository.findByCategoryId(categoryId, pageable)
+                : productRepository.findByCategoryIdWithInventory(categoryId, pageable);
+
+        return mapProductPageToResponse(productPage);
+    }
+
+    @Override
+    public ProductResponseDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
+        
+        ProductResponseDTO response = productMapper.toResponseDTO(product);
+
+        categoryRepository.findById(product.getCategoryId())
+                .ifPresent(category -> response.setCategoryName(category.getName()));
+
+        inventoryRepository.findByProductId(product.getId())
+                .ifPresent(inventory -> response.setQuantity(inventory.getQuantity()));
+
+        return response;
+    }
+
+    @Override
+    public ProductResponseDTO updateProduct(Long id, UpdateProductDTO updateProductDTO) {
+        log.info("Updating product: {}", id);
+        
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
+
+        validateProductNameUniqueness(existingProduct, updateProductDTO.getName());
+        
+        if (updateProductDTO.getCategoryId() != null) {
+            categoryRepository.findById(updateProductDTO.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + updateProductDTO.getCategoryId()));
+            existingProduct.setCategoryId(updateProductDTO.getCategoryId());
+        }
+
+        productMapper.updateEntity(updateProductDTO, existingProduct);
+        Product updatedProduct = productRepository.save(existingProduct);
+
+        invalidateProductCache(id);
+
+        ProductResponseDTO response = productMapper.toResponseDTO(updatedProduct);
+        enrichProductResponse(response, updatedProduct);
+
+        log.info("Product updated successfully: {}", id);
+        return response;
+    }
+
+    @Override
+    public List<ProductResponseDTO> getAllProductsList() {
+        return productRepository.findAllWithInventory().stream()
+                .map(product -> {
+                    ProductResponseDTO response = productMapper.toResponseDTO(product);
+                    Integer quantity = cacheManager.get("inventory:quantity:" + product.getId(), () ->
+                            inventoryRepository.findByProductId(product.getId())
+                                    .map(Inventory::getQuantity)
+                                    .orElse(null)
+                    );
+                    response.setQuantity(quantity);
+                    return response;
+                })
+                .toList();
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        log.info("Deleting product: {}", id);
+        
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
+
+        try {
+            productRepository.delete(product);
+            invalidateProductCache(id);
+            log.info("Product deleted successfully: {}", id);
+        } catch (Exception ex) {
+            if (ex.getMessage() != null && ex.getMessage().contains("foreign key constraint")) {
+                throw new ConstraintViolationException(
+                        "Cannot delete product. It is being used in orders or inventory. Please remove related records first.");
+            }
+            throw ex;
+        }
+    }
+
+    private Page<ProductResponseDTO> mapProductPageToResponse(Page<Product> productPage) {
+        return productPage.map(product -> {
+            ProductResponseDTO response = productMapper.toResponseDTO(product);
+
+            Category category = cacheManager.get("category:" + product.getCategoryId(), () ->
+                    categoryRepository.findById(product.getCategoryId()).orElse(null)
+            );
+            if (category != null) {
+                response.setCategoryName(category.getName());
+            }
+
+            Integer quantity = cacheManager.get("inventory:quantity:" + product.getId(), () ->
+                    inventoryRepository.findByProductId(product.getId())
+                            .map(Inventory::getQuantity)
+                            .orElse(0)
+            );
+            response.setQuantity(quantity);
+            return response;
+        });
+    }
+
+    private void validateProductNameUniqueness(Product existingProduct, String newName) {
+        if (newName != null
+                && !existingProduct.getName().equalsIgnoreCase(newName)
+                && productRepository.existsByNameIgnoreCase(newName)) {
+            throw new ResourceAlreadyExistsException("Product with name '" + newName + "' already exists");
+        }
+    }
+
+    private void enrichProductResponse(ProductResponseDTO response, Product product) {
+        categoryRepository.findById(product.getCategoryId())
+                .ifPresent(category -> response.setCategoryName(category.getName()));
+
+        inventoryRepository.findByProductId(product.getId())
+                .ifPresent(inventory -> response.setQuantity(inventory.getQuantity()));
+    }
+
+    private void invalidateProductCache(Long productId) {
+        cacheManager.invalidate("product:" + productId);
+        cacheManager.invalidate("inventory:quantity:" + productId);
+    }
+}

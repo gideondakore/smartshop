@@ -1,0 +1,35 @@
+package com.amalitech.smartshop.mappers;
+
+import com.amalitech.smartshop.dtos.requests.UpdateUserDTO;
+import com.amalitech.smartshop.dtos.requests.UserRegistrationDTO;
+import com.amalitech.smartshop.dtos.responses.LoginResponseDTO;
+import com.amalitech.smartshop.dtos.responses.UserSummaryDTO;
+import com.amalitech.smartshop.entities.User;
+import org.mapstruct.*;
+
+/**
+ * MapStruct mapper for User entity conversions.
+ */
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+    
+    @Mapping(target = "token", ignore = true)
+    LoginResponseDTO toResponseDTO(User user);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    User toEntity(UserRegistrationDTO userRegistrationDTO);
+
+    @Mapping(target = "name", ignore = true)
+    UserSummaryDTO toSummaryDTO(User user);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "firstName", source = "firstName")
+    @Mapping(target = "lastName", source = "lastName")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(UpdateUserDTO updateDTO, @MappingTarget User entity);
+}

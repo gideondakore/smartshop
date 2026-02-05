@@ -1,0 +1,16 @@
+package com.amalitech.smartshop.dtos.requests;
+
+import com.amalitech.smartshop.enums.UserRole;
+import jakarta.validation.constraints.Email;
+import lombok.Data;
+
+@Data
+public class UpdateUserDTO {
+    private String name;
+    private String firstName;
+    private String lastName;
+    @Email(message = "Invalid email format")
+    private String email;
+    private UserRole role;
+}
+
