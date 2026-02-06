@@ -36,10 +36,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const token = getAuthToken();
+    console.log("Checking auth token on app load:", token); // Debug log to check token presence
     if (token) {
       userApi
         .getProfile()
-        .then((res) => setUser(res.data))
+        .then((res) => {
+          console.log("Profile data on app load:", res.data); // Debug log to check profile data
+          setUser(res.data);
+        })
         .catch(() => setAuthToken(null));
     }
   }, []);
@@ -48,6 +52,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const res = await userApi.login({ email, password });
     // Backend returns ApiResponse with data wrapper: {status, message, data: {token, ...userData}}
     const loginData = res.data;
+
+    console.log("Login response data:", loginData); // Debug log to check the response structure
+
     setAuthToken(loginData.token);
     // The user data is in the same object as token
     const userData = {

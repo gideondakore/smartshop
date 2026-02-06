@@ -8,10 +8,11 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("Attempting login with:", { email, password }); // Debug log to check input values
     e.preventDefault();
     try {
       const loggedInUser = await login(email, password);

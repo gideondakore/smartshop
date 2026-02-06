@@ -62,7 +62,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public Page<InventoryResponseDTO> getAllInventories(Pageable pageable) {
         return inventoryRepository.findAll(pageable)
-                .map(inventory -> cacheManager.get("invent:" + inventory.getId(), () -> {
+                .map(inventory -> cacheManager.get("inventory:" + inventory.getId(), () -> {
                     InventoryResponseDTO response = inventoryMapper.toResponseDTO(inventory);
                     enrichResponseWithProductName(response, inventory.getProductId());
                     return response;

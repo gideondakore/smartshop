@@ -69,12 +69,26 @@ export const userApi = {
     password: string;
     role?: string;
   }) =>
-    fetchApi<{ token: string; user: any }>("/users/register", {
+    fetchApi<{
+      token: string;
+      email: string;
+      role: string;
+      firstName: string;
+      lastName: string;
+      id: number;
+    }>("/users/register", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   login: (data: { email: string; password: string }) =>
-    fetchApi<{ token: string; user: any }>("/users/login", {
+    fetchApi<{
+      token: string;
+      email: string;
+      role: string;
+      firstName: string;
+      lastName: string;
+      id: number;
+    }>("/users/login", {
       method: "POST",
       body: JSON.stringify(data),
     }),
