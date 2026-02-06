@@ -1,20 +1,20 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth-context';
-import { userApi } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { userApi } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function Profile() {
   const { user } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({ username: '', email: '' });
+  const [formData, setFormData] = useState({ username: "", email: "" });
 
   useEffect(() => {
-    if (!user) router.push('/login');
+    if (!user) router.push("/login");
     else {
-      userApi.getProfile().then(res => {
+      userApi.getProfile().then((res) => {
         setProfile(res.data);
         setFormData({ username: res.data.username, email: res.data.email });
       });
@@ -29,7 +29,12 @@ export default function Profile() {
     setEditing(false);
   };
 
-  if (!profile) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!profile)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -37,13 +42,25 @@ export default function Profile() {
         <h1 className="text-3xl font-bold mb-6">Profile</h1>
         {!editing ? (
           <div>
-            <p className="mb-2"><strong>Username:</strong> {profile.username}</p>
-            <p className="mb-2"><strong>Email:</strong> {profile.email}</p>
-            <p className="mb-6"><strong>Role:</strong> {profile.role}</p>
-            <button onClick={() => setEditing(true)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">
+            <p className="mb-2">
+              <strong>Username:</strong> {profile.username}
+            </p>
+            <p className="mb-2">
+              <strong>Email:</strong> {profile.email}
+            </p>
+            <p className="mb-6">
+              <strong>Role:</strong> {profile.role}
+            </p>
+            <button
+              onClick={() => setEditing(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2"
+            >
               Edit Profile
             </button>
-            <button onClick={() => router.push('/')} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+            <button
+              onClick={() => router.push("/")}
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+            >
               Back to Home
             </button>
           </div>
@@ -51,14 +68,39 @@ export default function Profile() {
           <form onSubmit={handleUpdate}>
             <div className="mb-4">
               <label className="block mb-2">Username</label>
-              <input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="w-full border rounded px-3 py-2" />
+              <input
+                type="text"
+                value={formData.username}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+                className="w-full border rounded px-3 py-2"
+              />
             </div>
             <div className="mb-6">
               <label className="block mb-2">Email</label>
-              <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full border rounded px-3 py-2" />
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="w-full border rounded px-3 py-2"
+              />
             </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Save</button>
-            <button type="button" onClick={() => setEditing(false)} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+            >
+              Cancel
+            </button>
           </form>
         )}
       </div>

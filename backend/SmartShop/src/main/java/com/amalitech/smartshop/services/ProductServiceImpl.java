@@ -72,10 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponseDTO> getAllProducts(Pageable pageable, boolean isAdmin) {
-        Page<Product> productPage = isAdmin
-                ? productRepository.findAll(pageable)
-                : productRepository.findAllWithInventory(pageable);
-
+        Page<Product> productPage = productRepository.findAll(pageable);
         return mapProductPageToResponse(productPage);
     }
 
@@ -84,10 +81,7 @@ public class ProductServiceImpl implements ProductService {
         categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
 
-        Page<Product> productPage = isAdmin
-                ? productRepository.findByCategoryId(categoryId, pageable)
-                : productRepository.findByCategoryIdWithInventory(categoryId, pageable);
-
+        Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
         return mapProductPageToResponse(productPage);
     }
 

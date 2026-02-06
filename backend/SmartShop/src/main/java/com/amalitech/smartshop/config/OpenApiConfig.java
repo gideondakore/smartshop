@@ -15,37 +15,38 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Commerce Smart API",
+                title = "SmartShop API",
                 version = "1.0.0",
                 description = """
-                        # Commerce Smart E-Commerce API
+                        # SmartShop E-Commerce Platform API
                         
-                        This API provides comprehensive e-commerce functionality including:
-                        - User authentication and registration
-                        - Product catalog management
-                        - Shopping cart and checkout
-                        - Order processing and tracking
-                        - Inventory management
-                        - Category management
+                        Welcome to SmartShop's RESTful API - your gateway to building modern shopping experiences. 
+                        Our platform delivers complete e-commerce capabilities:
+                        - Secure user identity and account creation
+                        - Comprehensive product browsing and search
+                        - Seamless cart management and order fulfillment
+                        - Real-time order status monitoring
+                        - Dynamic inventory control
+                        - Flexible category organization
                         
-                        ## Authentication
-                        Most endpoints require authentication via Bearer token in the Authorization header.
-                        Format: `Authorization: Bearer <token>`
+                        ## Security & Access Control
+                        Protected endpoints require a valid Bearer token included in your request headers.
+                        Header format: `Authorization: Bearer <your-token-here>`
                         
-                        ## Error Handling
-                        The API uses standard HTTP status codes and returns consistent error responses:
+                        ## Response Codes & Error Patterns
+                        SmartShop API follows REST conventions with standard HTTP status codes for all responses:
                         
-                        ### Common Error Responses:
-                        - **400 Bad Request**: Validation errors or malformed request body
-                        - **401 Unauthorized**: Missing or invalid authentication token
-                        - **403 Forbidden**: User lacks required permissions/role
-                        - **404 Not Found**: Resource not found
-                        - **409 Conflict**: Resource already exists or constraint violation
-                        - **500 Internal Server Error**: Unexpected server error
+                        ### Status Code Reference:
+                        - **400 Bad Request**: Invalid input data or failed validation checks
+                        - **401 Unauthorized**: Authentication credentials missing or expired
+                        - **403 Forbidden**: Insufficient privileges for the requested operation
+                        - **404 Not Found**: Requested resource doesn't exist in our system
+                        - **409 Conflict**: Duplicate resource or business rule violation
+                        - **500 Internal Server Error**: An unexpected issue occurred on our end
                         
-                        ### Error Response Structure:
+                        ### Error Payload Examples:
                         
-                        **Standard Error** (404, 401, 403, 500):
+                        **General Error Format** (401, 403, 404, 500):
                         ```json
                         {
                           "timestamp": "2026-01-19T10:30:00.000+00:00",
@@ -55,7 +56,7 @@ import org.springframework.context.annotation.Configuration;
                         }
                         ```
                         
-                        **Validation Error** (400):
+                        **Validation Failure Format** (400):
                         ```json
                         {
                           "timestamp": "2026-01-19T10:30:00.000+00:00",
@@ -69,18 +70,18 @@ import org.springframework.context.annotation.Configuration;
                         }
                         ```
                         
-                        ## Roles and Permissions
-                        - **CUSTOMER**: Can browse products, create orders, view own orders
-                        - **ADMIN**: Full access to all endpoints including management operations
+                        ## User Roles & Access Levels
+                        - **CUSTOMER**: Browse catalog, place orders, manage personal shopping cart and order history
+                        - **ADMIN**: Complete system control with access to all resources and administrative functions
                         """,
                 contact = @Contact(
-                        name = "Commerce Smart API Support",
-                        email = "support@commercesmart.com"
+                        name = "SmartShop API Support",
+                        email = "support@smartshop.com"
                 )
         ),
         servers = {
                 @Server(url = "http://localhost:8080", description = "Local Development Server"),
-                @Server(url = "https://api.commercesmart.com", description = "Production Server")
+                @Server(url = "https://api.smartshop.com", description = "Production Server")
         }
 )
 public class OpenApiConfig {
@@ -90,37 +91,37 @@ public class OpenApiConfig {
         Components components = new Components();
 
         components.addResponses("BadRequest", new io.swagger.v3.oas.models.responses.ApiResponse()
-                .description("Bad Request - Validation error or malformed request")
+                .description("Invalid Request - Input validation failed or request body is improperly formatted")
                 .content(new Content()
                         .addMediaType("application/json", new MediaType()
                                 .schema(new Schema<>().$ref("#/components/schemas/ValidationErrorResponse")))));
 
         components.addResponses("Unauthorized", new io.swagger.v3.oas.models.responses.ApiResponse()
-                .description("Unauthorized - Invalid or missing authentication token")
+                .description("Access Denied - Authentication credentials are absent or have expired")
                 .content(new Content()
                         .addMediaType("application/json", new MediaType()
                                 .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
 
         components.addResponses("Forbidden", new io.swagger.v3.oas.models.responses.ApiResponse()
-                .description("Forbidden - User does not have required role")
+                .description("Insufficient Privileges - Your account lacks the necessary permissions for this action")
                 .content(new Content()
                         .addMediaType("application/json", new MediaType()
                                 .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
 
         components.addResponses("NotFound", new io.swagger.v3.oas.models.responses.ApiResponse()
-                .description("Not Found - Resource not found")
+                .description("Resource Unavailable - The requested item could not be located in our system")
                 .content(new Content()
                         .addMediaType("application/json", new MediaType()
                                 .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
 
         components.addResponses("Conflict", new io.swagger.v3.oas.models.responses.ApiResponse()
-                .description("Conflict - Resource already exists or constraint violation")
+                .description("Operation Conflict - Resource duplication detected or business constraint violated")
                 .content(new Content()
                         .addMediaType("application/json", new MediaType()
                                 .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
 
         components.addResponses("InternalServerError", new io.swagger.v3.oas.models.responses.ApiResponse()
-                .description("Internal Server Error - Unexpected error occurred")
+                .description("Server Malfunction - An unforeseen error has occurred while processing your request")
                 .content(new Content()
                         .addMediaType("application/json", new MediaType()
                                 .schema(new Schema<>().$ref("#/components/schemas/ErrorResponse")))));
