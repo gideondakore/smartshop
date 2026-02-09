@@ -36,6 +36,24 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Get all users")
+    @RequiresRole(UserRole.ADMIN)
+    @GetMapping
+    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryDTO>>> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Page<UserSummaryDTO> usersPage = userService.getAllUsers(pageable);
+        PagedResponse<UserSummaryDTO> pagedResponse = new PagedResponse<>(
+                usersPage.getContent(),
+                usersPage.getNumber(),
+                (int) usersPage.getTotalElements(),
+                usersPage.getTotalPages(),
+                usersPage.isLast()
+        );
+        ApiResponse<PagedResponse<UserSummaryDTO>> apiResponse =
+                new ApiResponse<>(HttpStatus.OK.value(), "Users fetched successfully", pagedResponse);
+        return ResponseEntity.ok(apiResponse);
+    }
+
     @Operation(summary = "Register a new user")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<LoginResponseDTO>> registerUser(@Valid @RequestBody UserRegistrationDTO request) {
@@ -71,23 +89,7 @@ public class UserController {
         return ResponseEntity.ok(apiResponse);
     }
 
-    @Operation(summary = "Get all users")
-    @RequiresRole(UserRole.ADMIN)
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryDTO>>> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
-        Page<UserSummaryDTO> usersPage = userService.getAllUsers(pageable);
-        PagedResponse<UserSummaryDTO> pagedResponse = new PagedResponse<>(
-                usersPage.getContent(),
-                usersPage.getNumber(),
-                (int) usersPage.getTotalElements(),
-                usersPage.getTotalPages(),
-                usersPage.isLast()
-        );
-        ApiResponse<PagedResponse<UserSummaryDTO>> apiResponse =
-                new ApiResponse<>(HttpStatus.OK.value(), "Users fetched successfully", pagedResponse);
-        return ResponseEntity.ok(apiResponse);
-    }
+
 
     @Operation(summary = "Get user by ID")
     @GetMapping("/{id}")
