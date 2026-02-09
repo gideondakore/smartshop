@@ -142,11 +142,13 @@ public class JdbcUserRepository implements UserRepository {
         } else {
             sql = "SELECT * FROM users";
             
-            // Add ORDER BY clause if sort is specified
             if (pageable.getSort().isSorted()) {
                 sql += " ORDER BY ";
                 sql += pageable.getSort().stream()
-                    .map(order -> order.getProperty() + " " + order.getDirection().name())
+                    .map(order -> {
+                        String column = mapPropertyToColumn(order.getProperty());
+                        return column + " " + order.getDirection().name();
+                    })
                     .reduce((a, b) -> a + ", " + b)
                     .orElse("id ASC");
             }
@@ -168,6 +170,16 @@ public class JdbcUserRepository implements UserRepository {
         
         long total = countUsers();
         return new PageImpl<>(users, pageable, total);
+    }
+    
+    private String mapPropertyToColumn(String property) {
+        return switch (property) {
+            case "firstName" -> "first_name";
+            case "lastName" -> "last_name";
+            case "createdAt" -> "created_at";
+            case "updatedAt" -> "updated_at";
+            default -> property;
+        };
     }
 
     @Override
