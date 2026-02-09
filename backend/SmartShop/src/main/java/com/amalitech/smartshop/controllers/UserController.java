@@ -57,7 +57,7 @@ public class UserController {
         Long userId = (Long) request.getAttribute("authenticatedUserId");
         UserSummaryDTO user = userService.findUserById(userId);
         ApiResponse<UserSummaryDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User profile fetched successfully", user);
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok(apiResponse);  
     }
 
     @Operation(summary = "Update authenticated user's profile")
@@ -99,7 +99,7 @@ public class UserController {
     @RequiresRole(UserRole.ADMIN)
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDTO request) {
-        log.info("Updating user with Body: {}", request);
+//        log.info("Updating user with Body: {}", request);
         UserSummaryDTO updatedUser = userService.updateUser(id, request);
         ApiResponse<UserSummaryDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
         return ResponseEntity.ok(apiResponse);
