@@ -32,7 +32,7 @@ public class CartController {
     @RequiresRole(UserRole.CUSTOMER)
     @GetMapping
     public ResponseEntity<ApiResponse<CartResponseDTO>> getCart(HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         CartResponseDTO cart = cartService.getCartByUserId(userId);
         ApiResponse<CartResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Cart fetched successfully", cart);
         return ResponseEntity.ok(apiResponse);
@@ -44,7 +44,7 @@ public class CartController {
     public ResponseEntity<ApiResponse<CartResponseDTO>> addItemToCart(
             @Valid @RequestBody AddCartItemDTO request,
             HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         CartResponseDTO cart = cartService.addItemToCart(request, userId);
         ApiResponse<CartResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Item added to cart successfully", cart);
         return ResponseEntity.ok(apiResponse);
@@ -57,7 +57,7 @@ public class CartController {
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateCartItemDTO request,
             HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         CartResponseDTO cart = cartService.updateCartItem(itemId, request, userId);
         ApiResponse<CartResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Cart item updated successfully", cart);
         return ResponseEntity.ok(apiResponse);
@@ -69,7 +69,7 @@ public class CartController {
     public ResponseEntity<ApiResponse<CartResponseDTO>> removeItemFromCart(
             @PathVariable Long itemId,
             HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         CartResponseDTO cart = cartService.removeItemFromCart(itemId, userId);
         ApiResponse<CartResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Item removed from cart successfully", cart);
         return ResponseEntity.ok(apiResponse);
@@ -79,7 +79,7 @@ public class CartController {
     @RequiresRole(UserRole.CUSTOMER)
     @DeleteMapping("/clear")
     public ResponseEntity<ApiResponse<Void>> clearCart(HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         cartService.clearCart(userId);
         ApiResponse<Void> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Cart cleared successfully", null);
         return ResponseEntity.ok(apiResponse);
@@ -89,7 +89,7 @@ public class CartController {
     @RequiresRole(UserRole.CUSTOMER)
     @PostMapping("/checkout")
     public ResponseEntity<ApiResponse<CartResponseDTO>> checkoutCart(HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         CartResponseDTO cart = cartService.checkoutCart(userId);
         ApiResponse<CartResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Cart checked out successfully", cart);
         return ResponseEntity.ok(apiResponse);

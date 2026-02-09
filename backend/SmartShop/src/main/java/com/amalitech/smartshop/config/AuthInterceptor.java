@@ -53,7 +53,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             User user = userRepository.findById(session.getUserId())
                     .orElseThrow(() -> new UnauthorizedException("User not found"));
             
-            request.setAttribute("authenticatedUserId", session.getUserId());
+            request.setAttribute("authUserId", session.getUserId());
             request.setAttribute("authenticatedUserRole", user.getRole().name());
             request.setAttribute("sessionToken", token);
             

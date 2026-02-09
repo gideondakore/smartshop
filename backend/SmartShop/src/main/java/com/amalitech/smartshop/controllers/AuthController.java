@@ -34,7 +34,7 @@ public class AuthController {
     @Operation(summary = "Logout from all devices")
     @PostMapping("/logout-all")
     public ResponseEntity<ApiResponse<Void>> logoutAll(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("authenticatedUserId");
+        Long userId = (Long) request.getAttribute("authUserId");
         sessionService.deleteAllUserSessions(userId);
         ApiResponse<Void> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Logged out from all devices", null);
         return ResponseEntity.ok(apiResponse);

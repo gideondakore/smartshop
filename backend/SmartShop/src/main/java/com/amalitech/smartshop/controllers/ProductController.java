@@ -39,7 +39,7 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<ProductResponseDTO>> addProduct(
             @Valid @RequestBody AddProductDTO request,
-            @RequestAttribute(value = "authenticatedUserId", required = false) Long userId,
+            @RequestAttribute(value = "authUserId", required = false) Long userId,
             @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole) {
         ProductResponseDTO product = productService.addProduct(request, userId, userRole);
         ApiResponse<ProductResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Product added successfully", product);
@@ -51,7 +51,7 @@ public class ProductController {
     @PostMapping("/add/bulk")
     public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> addProducts(
             @Valid @RequestBody List<AddProductDTO> requests,
-            @RequestAttribute(value = "authenticatedUserId", required = false) Long userId,
+            @RequestAttribute(value = "authUserId", required = false) Long userId,
             @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole) {
         List<ProductResponseDTO> products = requests.stream()
                 .map(dto -> productService.addProduct(dto, userId, userRole))
@@ -65,7 +65,7 @@ public class ProductController {
     @GetMapping("/public/all")
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponseDTO>>> getAllProducts(
             @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole,
-            @RequestAttribute(value = "authenticatedUserId", required = false) Long userId,
+            @RequestAttribute(value = "authUserId", required = false) Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "categoryId", required = false) Long categoryId,

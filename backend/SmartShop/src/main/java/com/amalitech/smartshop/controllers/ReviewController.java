@@ -37,7 +37,7 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> addReview(
             @Valid @RequestBody AddReviewDTO request,
             HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         ReviewResponseDTO review = reviewService.addReview(request, userId);
         ApiResponse<ReviewResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Review added successfully", review);
         return ResponseEntity.ok(apiResponse);
@@ -50,7 +50,7 @@ public class ReviewController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateReviewDTO request,
             HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         ReviewResponseDTO updatedReview = reviewService.updateReview(id, request, userId);
         ApiResponse<ReviewResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Review updated successfully", updatedReview);
         return ResponseEntity.ok(apiResponse);
@@ -62,7 +62,7 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<Void>> deleteReview(
             @PathVariable Long id,
             HttpServletRequest httpRequest) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         reviewService.deleteReview(id, userId);
         ApiResponse<Void> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Review deleted successfully", null);
         return ResponseEntity.ok(apiResponse);
@@ -120,7 +120,7 @@ public class ReviewController {
             HttpServletRequest httpRequest,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        Long userId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long userId = (Long) httpRequest.getAttribute("authUserId");
         Pageable pageable = Pageable.ofSize(size).withPage(page);
         Page<ReviewResponseDTO> reviews = reviewService.getReviewsByUserId(userId, pageable);
         PagedResponse<ReviewResponseDTO> pagedResponse = new PagedResponse<>(

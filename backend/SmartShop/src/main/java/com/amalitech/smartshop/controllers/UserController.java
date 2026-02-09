@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 /**
  * REST controller for user management operations.
  * Handles user registration, authentication, and profile management.
@@ -48,13 +49,14 @@ public class UserController {
     public ResponseEntity<ApiResponse<LoginResponseDTO>> loginUser(@Valid @RequestBody LoginDTO request) {
         LoginResponseDTO user = userService.loginUser(request);
         ApiResponse<LoginResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User logged in successfully", user);
+        log.info("API RESPONSE: " + apiResponse);
         return ResponseEntity.ok(apiResponse);
     }
 
     @Operation(summary = "Get authenticated user's profile")
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> getProfile(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("authenticatedUserId");
+        Long userId = (Long) request.getAttribute("authUserId");
         UserSummaryDTO user = userService.findUserById(userId);
         ApiResponse<UserSummaryDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User profile fetched successfully", user);
         return ResponseEntity.ok(apiResponse);  
@@ -63,7 +65,7 @@ public class UserController {
     @Operation(summary = "Update authenticated user's profile")
     @PutMapping("/updateProfile")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> updateProfile(HttpServletRequest request, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
-        Long userId = (Long) request.getAttribute("authenticatedUserId");
+        Long userId = (Long) request.getAttribute("authUserId");
         UserSummaryDTO updatedUser = userService.updateUser(userId, updateUserDTO);
         ApiResponse<UserSummaryDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User profile updated successfully", updatedUser);
         return ResponseEntity.ok(apiResponse);

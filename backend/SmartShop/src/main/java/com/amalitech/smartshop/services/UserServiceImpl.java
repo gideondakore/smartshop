@@ -97,7 +97,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        parseAndSetName(userDTO);
 
         String oldEmail = user.getEmail();
         userMapper.updateEntity(userDTO, user);
@@ -143,13 +142,7 @@ public class UserServiceImpl implements UserService {
         log.info("User deleted successfully: {}", id);
     }
 
-    private void parseAndSetName(UpdateUserDTO userDTO) {
-        if (userDTO.getName() != null && !userDTO.getName().trim().isEmpty()) {
-            String[] nameParts = userDTO.getName().trim().split("\\s+", 2);
-            userDTO.setFirstName(nameParts[0]);
-            userDTO.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-        }
-    }
+
 
     private void invalidateUserCache(Long id, String oldEmail, String newEmail) {
         cacheManager.invalidate("usr:" + id);

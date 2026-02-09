@@ -41,8 +41,8 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponseDTO>> createOrder(
             @Valid @RequestBody AddOrderDTO request,
             HttpServletRequest httpRequest) {
-        Long authenticatedUserId = (Long) httpRequest.getAttribute("authenticatedUserId");
-        request.setUserId(authenticatedUserId);
+        Long authUserId = (Long) httpRequest.getAttribute("authUserId");
+        request.setUserId(authUserId);
         OrderResponseDTO order = orderService.createOrder(request);
         ApiResponse<OrderResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Order created successfully", order);
         return ResponseEntity.ok(apiResponse);
@@ -92,9 +92,9 @@ public class OrderController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        Long authenticatedUserId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long authUserId = (Long) httpRequest.getAttribute("authUserId");
         Pageable pageable = Pageable.ofSize(size).withPage(page);
-        Page<OrderResponseDTO> orders = orderService.getOrdersByUserId(authenticatedUserId, pageable);
+        Page<OrderResponseDTO> orders = orderService.getOrdersByUserId(authUserId, pageable);
         PagedResponse<OrderResponseDTO> pagedResponse = new PagedResponse<>(
                 orders.getContent(),
                 orders.getNumber(),
