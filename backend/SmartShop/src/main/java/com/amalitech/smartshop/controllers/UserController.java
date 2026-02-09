@@ -17,7 +17,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +41,14 @@ public class UserController {
     @Operation(summary = "Get all users")
     @RequiresRole(UserRole.ADMIN)
     @GetMapping
-    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryDTO>>> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
+    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryDTO>>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page, 
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        log.info("PAGINATION: " + pageable);
         Page<UserSummaryDTO> usersPage = userService.getAllUsers(pageable);
         PagedResponse<UserSummaryDTO> pagedResponse = new PagedResponse<>(
                 usersPage.getContent(),

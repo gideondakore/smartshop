@@ -140,7 +140,19 @@ public class JdbcUserRepository implements UserRepository {
                 throw new RuntimeException("Error finding all users", e);
             }
         } else {
-            sql = "SELECT * FROM users LIMIT ? OFFSET ?";
+            sql = "SELECT * FROM users";
+            
+            // Add ORDER BY clause if sort is specified
+            if (pageable.getSort().isSorted()) {
+                sql += " ORDER BY ";
+                sql += pageable.getSort().stream()
+                    .map(order -> order.getProperty() + " " + order.getDirection().name())
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("id ASC");
+            }
+            
+            sql += " LIMIT ? OFFSET ?";
+            
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setInt(1, pageable.getPageSize());
                 ps.setInt(2, (int) pageable.getOffset());
