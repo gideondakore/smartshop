@@ -14,6 +14,7 @@ import org.mapstruct.*;
 public interface UserMapper {
     
     @Mapping(target = "token", ignore = true)
+    @Mapping(target = "role", expression = "java(user.getRole().name())")
     LoginResponseDTO toResponseDTO(User user);
 
     @Mapping(target = "id", ignore = true)

@@ -11,9 +11,8 @@ export default function Login() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormData) => {
     console.log("Attempting login with:", { email, password }); // Debug log to check input values
-    e.preventDefault();
     try {
       const loggedInUser = await login(email, password);
       // Redirect based on user role
@@ -36,7 +35,7 @@ export default function Login() {
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6">Login</h2>
         {error && <p className="text-red-600 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
+        <form action={handleSubmit}>
           <div className="mb-4">
             <label className="block mb-2">Email</label>
             <input
