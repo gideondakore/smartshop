@@ -88,7 +88,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         
         UserSummaryDTO summary = userMapper.toSummaryDTO(user);
-        summary.setName(user.getFullName());
         return summary;
     }
 
@@ -105,7 +104,6 @@ public class UserServiceImpl implements UserService {
         invalidateUserCache(id, oldEmail, userDTO.getEmail());
 
         UserSummaryDTO summary = userMapper.toSummaryDTO(updatedUser);
-        summary.setName(updatedUser.getFullName());
         return summary;
     }
 
@@ -114,7 +112,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll(pageable).map(user ->
                 cacheManager.get("usr:" + user.getId(), () -> {
                     UserSummaryDTO summary = userMapper.toSummaryDTO(user);
-                    summary.setName(user.getFullName());
                     return summary;
                 })
         );

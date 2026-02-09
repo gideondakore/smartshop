@@ -48,7 +48,6 @@ public class UserController {
             @RequestParam(defaultValue = "asc") String direction) {
         Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        log.info("PAGINATION: " + pageable);
         Page<UserSummaryDTO> usersPage = userService.getAllUsers(pageable);
         PagedResponse<UserSummaryDTO> pagedResponse = new PagedResponse<>(
                 usersPage.getContent(),
@@ -109,9 +108,9 @@ public class UserController {
 
     @Operation(summary = "Update user details")
     @RequiresRole(UserRole.ADMIN)
-    @PutMapping("/update/{id}")
+//    @PutMapping("/update/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDTO request) {
-//        log.info("Updating user with Body: {}", request);
         UserSummaryDTO updatedUser = userService.updateUser(id, request);
         ApiResponse<UserSummaryDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
         return ResponseEntity.ok(apiResponse);

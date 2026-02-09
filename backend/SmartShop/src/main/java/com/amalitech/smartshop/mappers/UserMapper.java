@@ -22,7 +22,6 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     User toEntity(UserRegistrationDTO userRegistrationDTO);
 
-    @Mapping(target = "name", ignore = true)
     UserSummaryDTO toSummaryDTO(User user);
 
     @Mapping(target = "id", ignore = true)
