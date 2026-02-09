@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.OrderItem;
-import com.amalitech.smartshop.interfaces.OrderItemRepository;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -12,10 +11,10 @@ import java.util.List;
  * JDBC-based implementation of the OrderItemRepository interface.
  */
 @Repository
-public class JdbcOrderItemRepository implements OrderItemRepository {
+public class OrderItemRepository implements com.amalitech.smartshop.interfaces.OrderItemRepository {
     private final Connection connection;
 
-    public JdbcOrderItemRepository(Connection connection) {
+    public OrderItemRepository(Connection connection) {
         this.connection = connection;
     }
 

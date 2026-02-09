@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.Review;
-import com.amalitech.smartshop.interfaces.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcReviewRepository implements ReviewRepository {
+public class ReviewRepository implements com.amalitech.smartshop.interfaces.ReviewRepository {
     private final Connection connection;
 
     private Review mapRow(ResultSet rs) throws SQLException {

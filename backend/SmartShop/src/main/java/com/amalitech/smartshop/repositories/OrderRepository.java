@@ -2,7 +2,6 @@ package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.Order;
 import com.amalitech.smartshop.enums.OrderStatus;
-import com.amalitech.smartshop.interfaces.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +16,10 @@ import java.util.Optional;
  * JDBC-based implementation of the OrderRepository interface.
  */
 @Repository
-public class JdbcOrderRepository implements OrderRepository {
+public class OrderRepository implements com.amalitech.smartshop.interfaces.OrderRepository {
     private final Connection connection;
 
-    public JdbcOrderRepository(Connection connection) {
+    public OrderRepository(Connection connection) {
         this.connection = connection;
     }
 

@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.Inventory;
-import com.amalitech.smartshop.interfaces.InventoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +15,10 @@ import java.util.Optional;
  * JDBC-based implementation of the InventoryRepository interface.
  */
 @Repository
-public class JdbcInventoryRepository implements InventoryRepository {
+public class InventoryRepository implements com.amalitech.smartshop.interfaces.InventoryRepository {
     private final Connection connection;
 
-    public JdbcInventoryRepository(Connection connection) {
+    public InventoryRepository(Connection connection) {
         this.connection = connection;
     }
 

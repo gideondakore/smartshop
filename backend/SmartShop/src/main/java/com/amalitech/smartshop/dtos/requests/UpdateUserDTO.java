@@ -8,7 +8,6 @@ import lombok.Data;
 public class UpdateUserDTO {
     private String firstName;
     private String lastName;
-    @Email(message = "Invalid email format")
     private String email;
     private UserRole role;
 }

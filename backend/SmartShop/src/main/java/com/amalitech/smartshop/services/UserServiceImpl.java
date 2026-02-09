@@ -87,8 +87,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         
-        UserSummaryDTO summary = userMapper.toSummaryDTO(user);
-        return summary;
+        return userMapper.toSummaryDTO(user);
     }
 
     @Override
@@ -103,17 +102,13 @@ public class UserServiceImpl implements UserService {
 
         invalidateUserCache(id, oldEmail, userDTO.getEmail());
 
-        UserSummaryDTO summary = userMapper.toSummaryDTO(updatedUser);
-        return summary;
+        return userMapper.toSummaryDTO(updatedUser);
     }
 
     @Override
     public Page<UserSummaryDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(user ->
-                cacheManager.get("usr:" + user.getId(), () -> {
-                    UserSummaryDTO summary = userMapper.toSummaryDTO(user);
-                    return summary;
-                })
+                cacheManager.get("usr:" + user.getId(), () -> userMapper.toSummaryDTO(user))
         );
     }
 

@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.Cart;
-import com.amalitech.smartshop.interfaces.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcCartRepository implements CartRepository {
+public class CartRepository implements com.amalitech.smartshop.interfaces.CartRepository {
     private final Connection connection;
 
     private Cart mapRow(ResultSet rs) throws SQLException {

@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.Product;
-import com.amalitech.smartshop.interfaces.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +15,10 @@ import java.util.Optional;
  * JDBC-based implementation of the ProductRepository interface.
  */
 @Repository
-public class JdbcProductRepository implements ProductRepository {
+public class ProductRepository implements com.amalitech.smartshop.interfaces.ProductRepository {
     private final Connection connection;
 
-    public JdbcProductRepository(Connection connection) {
+    public ProductRepository(Connection connection) {
         this.connection = connection;
     }
 

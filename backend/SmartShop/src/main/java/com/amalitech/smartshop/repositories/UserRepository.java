@@ -2,7 +2,6 @@ package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.User;
 import com.amalitech.smartshop.enums.UserRole;
-import com.amalitech.smartshop.interfaces.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +16,10 @@ import java.util.Optional;
  * JDBC-based implementation of the UserRepository interface.
  */
 @Repository
-public class JdbcUserRepository implements UserRepository {
+public class UserRepository implements com.amalitech.smartshop.interfaces.UserRepository {
     private final Connection connection;
 
-    public JdbcUserRepository(Connection connection) {
+    public UserRepository(Connection connection) {
         this.connection = connection;
     }
 

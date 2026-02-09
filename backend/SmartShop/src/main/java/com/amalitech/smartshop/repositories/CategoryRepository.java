@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.Category;
-import com.amalitech.smartshop.interfaces.CategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +15,10 @@ import java.util.Optional;
  * JDBC-based implementation of the CategoryRepository interface.
  */
 @Repository
-public class JdbcCategoryRepository implements CategoryRepository {
+public class CategoryRepository implements com.amalitech.smartshop.interfaces.CategoryRepository {
     private final Connection connection;
 
-    public JdbcCategoryRepository(Connection connection) {
+    public CategoryRepository(Connection connection) {
         this.connection = connection;
     }
 
