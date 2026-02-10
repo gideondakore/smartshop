@@ -226,7 +226,7 @@ export const productApi = {
 // Order APIs
 export const orderApi = {
   create: (data: { items: { productId: number; quantity: number }[] }) =>
-    fetchApi<any>("/orders/create", {
+    fetchApi<any>("/orders", {
       method: "POST",
       body: JSON.stringify(data),
     }),

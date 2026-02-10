@@ -125,8 +125,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDTO updateOrderStatus(Long id, UpdateOrderDTO updateOrderDTO) {
-        log.info("Updating order status: {} to {}", id, updateOrderDTO.getStatus());
-        
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + id));
 

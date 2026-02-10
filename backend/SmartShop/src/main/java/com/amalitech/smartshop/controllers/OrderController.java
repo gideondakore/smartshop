@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class OrderController {
 
     @Operation(summary = "Create a new order")
     @RequiresRole({UserRole.CUSTOMER, UserRole.ADMIN})
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ApiResponse<OrderResponseDTO>> createOrder(
             @Valid @RequestBody AddOrderDTO request,
             HttpServletRequest httpRequest) {
@@ -50,7 +51,7 @@ public class OrderController {
 
     @Operation(summary = "Get all orders")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<OrderResponseDTO>>> getAllOrders(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -60,7 +61,7 @@ public class OrderController {
     ) {
         Pageable pageable = Pageable.ofSize(size).withPage(page);
         Page<OrderResponseDTO> orders = orderService.getAllOrders(pageable);
-        List<OrderResponseDTO> orderList = orders.getContent();
+        List<OrderResponseDTO> orderList = new ArrayList<>(orders.getContent());
 
         // Apply custom sorting if sortBy is specified
         if (sortBy != null) {
@@ -117,7 +118,7 @@ public class OrderController {
 
     @Operation(summary = "Update order status")
     @RequiresRole(UserRole.ADMIN)
-    @PutMapping("/update/{id}")
+    @PutMapping("/status/{id}")
     public ResponseEntity<ApiResponse<OrderResponseDTO>> updateOrderStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateOrderDTO request) {
