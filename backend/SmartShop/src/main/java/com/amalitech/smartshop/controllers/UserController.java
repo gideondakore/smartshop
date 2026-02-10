@@ -108,8 +108,7 @@ public class UserController {
 
     @Operation(summary = "Update user details")
     @RequiresRole(UserRole.ADMIN)
-//    @PutMapping("/update/{id}")
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDTO request) {
         UserSummaryDTO updatedUser = userService.updateUser(id, request);
         ApiResponse<UserSummaryDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);

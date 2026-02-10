@@ -54,6 +54,9 @@ public class UserServiceImpl implements UserService {
                 });
 
         User user = userMapper.toEntity(userDTO);
+        user.setFirstName(capitalize(user.getFirstName()));
+        user.setLastName(capitalize(user.getLastName()));
+        user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
 
         User savedUser = userRepository.save(user);
@@ -68,7 +71,7 @@ public class UserServiceImpl implements UserService {
     public LoginResponseDTO loginUser(LoginDTO loginDTO) {
         log.info("Attempting login for email: {}", loginDTO.getEmail());
         
-        User user = userRepository.findByEmail(loginDTO.getEmail())
+        User user = userRepository.findByEmail(loginDTO.getEmail().toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + loginDTO.getEmail()));
 
         if (!BCrypt.checkpw(loginDTO.getPassword(), user.getPassword())) {
@@ -95,10 +98,15 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-
         String oldEmail = user.getEmail();
         userMapper.updateEntity(userDTO, user);
-        User updatedUser = userRepository.save(user);
+
+
+        if (user.getFirstName() != null) user.setFirstName(capitalize(user.getFirstName()));
+        if (user.getLastName() != null) user.setLastName(capitalize(user.getLastName()));
+        if (user.getEmail() != null) user.setEmail(user.getEmail().toLowerCase());
+
+        User updatedUser = userRepository.update(user);
 
         invalidateUserCache(id, oldEmail, userDTO.getEmail());
 
@@ -119,7 +127,6 @@ public class UserServiceImpl implements UserService {
         
         String email = user.getEmail();
 
-        // Delete associated orders and order items
         List<Order> orders = orderRepository.findByUserId(id);
         for (Order order : orders) {
             orderItemRepository.deleteAll(orderItemRepository.findByOrderId(order.getId()));
@@ -142,5 +149,10 @@ public class UserServiceImpl implements UserService {
         if (newEmail != null && !oldEmail.equals(newEmail)) {
             cacheManager.invalidate("usr:" + newEmail);
         }
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }

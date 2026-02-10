@@ -1,7 +1,6 @@
 package com.amalitech.smartshop.dtos.requests;
 
 import com.amalitech.smartshop.enums.UserRole;
-import jakarta.validation.constraints.Email;
 import lombok.Data;
 
 @Data

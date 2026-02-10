@@ -36,6 +36,9 @@ public interface UserRepository {
      */
     User save(User user);
 
+
+    User update(User user);
+
     /**
      * Delete a user.
      *

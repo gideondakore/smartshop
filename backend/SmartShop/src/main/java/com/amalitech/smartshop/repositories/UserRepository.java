@@ -2,6 +2,7 @@ package com.amalitech.smartshop.repositories;
 
 import com.amalitech.smartshop.entities.User;
 import com.amalitech.smartshop.enums.UserRole;
+import com.amalitech.smartshop.exceptions.BadRequestFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -74,11 +75,25 @@ public class UserRepository implements com.amalitech.smartshop.interfaces.UserRe
             if (user.getId() == null) {
                 return insert(user);
             } else {
-                return update(user);
+                return updateUser(user);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error saving user", e);
         }
+    }
+
+    @Override
+    public User update(User user) {
+        try{
+            if(user.getId() == null){
+                throw new BadRequestFormat("User not found. Please login again to try");
+            }else{
+                return updateUser(user);
+            }
+        }catch (SQLException e){
+            throw new RuntimeException("Error occur whilst updating the user");
+        }
+
     }
 
     private User insert(User user) throws SQLException {
@@ -99,19 +114,19 @@ public class UserRepository implements com.amalitech.smartshop.interfaces.UserRe
         return user;
     }
 
-    private User update(User user) throws SQLException {
-        String sql = "UPDATE users SET first_name = ?, last_name = ?, email = ?, password = ?, role = ?, updated_at = NOW() WHERE id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, user.getFirstName());
-            ps.setString(2, user.getLastName());
-            ps.setString(3, user.getEmail());
-            ps.setString(4, user.getPassword());
-            ps.setString(5, user.getRole().name());
-            ps.setLong(6, user.getId());
-            ps.executeUpdate();
-        }
-        return user;
+    private User updateUser(User user) throws SQLException {
+    String sql = "UPDATE users SET first_name = ?, last_name = ?, email = ?, role = ?, updated_at = NOW() WHERE id = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setString(1, user.getFirstName());
+        ps.setString(2, user.getLastName());
+        ps.setString(3, user.getEmail());
+        ps.setString(4, user.getRole().name());
+        ps.setLong(5, user.getId());
+        ps.executeUpdate();
     }
+    return user;
+}
+
 
     @Override
     public void delete(User user) {

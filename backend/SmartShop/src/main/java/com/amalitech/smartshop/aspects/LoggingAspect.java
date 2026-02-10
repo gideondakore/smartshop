@@ -6,6 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -39,10 +40,15 @@ public class LoggingAspect {
         try {
             Object result = joinPoint.proceed();
             long executionTime = System.currentTimeMillis() - startTime;
-
-            log.info("← {} {} | Controller: {} | Status: SUCCESS | Time: {}ms",
-                    method, path, joinPoint.getSignature().getName(), executionTime);
-
+            
+            int status = 200;
+            if (result instanceof ResponseEntity) {
+                status = ((ResponseEntity<?>) result).getStatusCode().value();
+            }
+            
+            log.info("← {} {} | Status: {} | Controller: {} | Time: {}ms",
+                    method, path, status, joinPoint.getSignature().getName(), executionTime);
+            
             return result;
         } catch (Exception e) {
             long executionTime = System.currentTimeMillis() - startTime;
