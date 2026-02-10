@@ -102,7 +102,7 @@ export const userApi = {
     fetchApi<PagedResponse<any>>(`/users/all?page=${page}&size=${size}`),
   getUserById: (id: number) => fetchApi<any>(`/users/${id}`),
   updateUser: (id: number, data: any) =>
-    fetchApi<any>(`/users/update/${id}`, {
+    fetchApi<any>(`/users/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
@@ -153,7 +153,7 @@ export const productApi = {
     categoryId: number;
     imageUrl?: string;
   }) =>
-    fetchApi<any>("/products/add", {
+    fetchApi<any>("/products", {
       method: "POST",
       body: JSON.stringify(data),
     }),

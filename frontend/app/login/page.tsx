@@ -12,7 +12,7 @@ export default function Login() {
   const router = useRouter();
 
   const handleSubmit = async (e: FormData) => {
-    console.log("Attempting login with:", { email, password }); // Debug log to check input values
+    console.log("Attempting login with:", { email, password });
     try {
       const loggedInUser = await login(email, password);
       // Redirect based on user role

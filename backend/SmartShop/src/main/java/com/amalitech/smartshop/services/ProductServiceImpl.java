@@ -41,8 +41,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDTO addProduct(AddProductDTO addProductDTO, Long userId, String userRole) {
-        log.info("Adding new product: {}", addProductDTO.getName());
-        
+
         if (productRepository.existsByNameIgnoreCase(addProductDTO.getName())) {
             throw new ResourceAlreadyExistsException("Product already exists");
         }
@@ -53,7 +52,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.toEntity(addProductDTO);
         product.setCategoryId(addProductDTO.getCategoryId());
         
-        // Set vendor ID if user is a vendor
         if ("VENDOR".equals(userRole) && userId != null) {
             product.setVendorId(userId);
         }
@@ -66,7 +64,6 @@ public class ProductServiceImpl implements ProductService {
         inventoryRepository.findByProductId(savedProduct.getId())
                 .ifPresent(inventory -> response.setQuantity(inventory.getQuantity()));
 
-        log.info("Product added successfully with id: {}", savedProduct.getId());
         return response;
     }
 
@@ -109,8 +106,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDTO updateProduct(Long id, UpdateProductDTO updateProductDTO) {
-        log.info("Updating product: {}", id);
-        
+
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
 

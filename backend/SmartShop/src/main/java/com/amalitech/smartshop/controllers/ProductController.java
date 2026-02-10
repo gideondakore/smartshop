@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class ProductController {
 
     @Operation(summary = "Add a new product")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<ApiResponse<ProductResponseDTO>> addProduct(
             @Valid @RequestBody AddProductDTO request,
             @RequestAttribute(value = "authUserId", required = false) Long userId,
@@ -48,7 +49,7 @@ public class ProductController {
 
     @Operation(summary = "Add multiple products")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @PostMapping("/add/bulk")
+    @PostMapping("/bulk")
     public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> addProducts(
             @Valid @RequestBody List<AddProductDTO> requests,
             @RequestAttribute(value = "authUserId", required = false) Long userId,
@@ -62,7 +63,7 @@ public class ProductController {
     }
 
     @Operation(summary = "Get all products")
-    @GetMapping("/public/all")
+    @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponseDTO>>> getAllProducts(
             @RequestAttribute(value = "authenticatedUserRole", required = false) String userRole,
             @RequestAttribute(value = "authUserId", required = false) Long userId,
@@ -92,7 +93,7 @@ public class ProductController {
             products = productService.getAllProducts(pageable, isAdmin);
         }
 
-        List<ProductResponseDTO> productList = products.getContent();
+        List<ProductResponseDTO> productList = new ArrayList<>(products.getContent());
 
         // Apply custom sorting if sortBy is specified
         if (sortBy != null) {
@@ -101,7 +102,6 @@ public class ProductController {
                 SortingService.SortAlgorithm algo = SortingService.SortAlgorithm.valueOf(algorithm.toUpperCase());
                 sortingService.sortProducts(productList, field, ascending, algo);
             } catch (IllegalArgumentException e) {
-                // Invalid sortBy or algorithm, ignore and return unsorted
             }
         }
 
@@ -126,7 +126,7 @@ public class ProductController {
 
     @Operation(summary = "Update a product")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponseDTO>> updateProduct(
             @PathVariable Long id,
             @Valid @RequestBody UpdateProductDTO request) {
