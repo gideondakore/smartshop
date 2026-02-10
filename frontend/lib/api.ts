@@ -246,13 +246,13 @@ export const orderApi = {
     if (params?.ascending !== undefined)
       query.append("ascending", params.ascending.toString());
     if (params?.algorithm) query.append("algorithm", params.algorithm);
-    return fetchApi<PagedResponse<any>>(`/orders/all?${query}`);
+    return fetchApi<PagedResponse<any>>(`/orders?${query}`);
   },
   getUserOrders: (page = 0, size = 10) =>
     fetchApi<PagedResponse<any>>(`/orders/user?page=${page}&size=${size}`),
   getById: (id: number) => fetchApi<any>(`/orders/${id}`),
   updateStatus: (id: number, data: { status: string }) =>
-    fetchApi<any>(`/orders/update/${id}`, {
+    fetchApi<any>(`/orders/status/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
