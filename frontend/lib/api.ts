@@ -262,17 +262,18 @@ export const orderApi = {
 // Inventory APIs
 export const inventoryApi = {
   add: (data: { productId: number; quantity: number; location: string }) =>
-    fetchApi<any>("/inventory/add", {
+    fetchApi<any>("/inventory", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   getAll: (page = 0, size = 10) =>
-    fetchApi<PagedResponse<any>>(`/inventory/all?page=${page}&size=${size}`),
+    fetchApi<PagedResponse<any>>(`/inventory?page=${page}&size=${size}`),
   getById: (id: number) => fetchApi<any>(`/inventory/${id}`),
   getByProductId: (productId: number) =>
     fetchApi<any>(`/inventory/product/${productId}`),
   update: (id: number, data: { quantity?: number; location?: string }) =>
-    fetchApi<any>(`/inventory/update/${id}`, {
+    fetchApi<any>(`/inventory/${id}`, {
+      // This update only the location and quantity of the inventory
       method: "PUT",
       body: JSON.stringify(data),
     }),

@@ -32,7 +32,7 @@ public class InventoryController {
 
     @Operation(summary = "Add inventory")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<ApiResponse<InventoryResponseDTO>> addInventory(@Valid @RequestBody AddInventoryDTO request) {
         InventoryResponseDTO inventory = inventoryService.addInventory(request);
         ApiResponse<InventoryResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Inventory added successfully", inventory);
@@ -41,7 +41,7 @@ public class InventoryController {
 
     @Operation(summary = "Get all inventories")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<InventoryResponseDTO>>> getAllInventories(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
@@ -77,7 +77,7 @@ public class InventoryController {
 
     @Operation(summary = "Update inventory")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<InventoryResponseDTO>> updateInventory(
             @PathVariable Long id,
             @Valid @RequestBody UpdateInventoryDTO request) {
@@ -88,11 +88,11 @@ public class InventoryController {
 
     @Operation(summary = "Adjust inventory quantity")
     @RequiresRole({UserRole.ADMIN, UserRole.VENDOR})
-    @PatchMapping("/adjust/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<InventoryResponseDTO>> adjustInventoryQuantity(
             @PathVariable Long id,
-            @RequestParam Integer quantityChange) {
-        InventoryResponseDTO adjustedInventory = inventoryService.adjustInventoryQuantity(id, quantityChange);
+            @RequestParam Integer quantity) {
+        InventoryResponseDTO adjustedInventory = inventoryService.adjustInventoryQuantity(id, quantity);
         ApiResponse<InventoryResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Inventory quantity adjusted successfully", adjustedInventory);
         return ResponseEntity.ok(apiResponse);
     }
