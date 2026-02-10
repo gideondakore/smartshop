@@ -277,8 +277,8 @@ export const inventoryApi = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
-  adjustQuantity: (id: number, quantityChange: number) =>
-    fetchApi<any>(`/inventory/adjust/${id}?quantityChange=${quantityChange}`, {
+  adjustQuantity: (id: number, quantity: number) =>
+    fetchApi<any>(`/inventory/${id}?quantity=${quantity}`, {
       method: "PATCH",
     }),
   delete: (id: number) =>
