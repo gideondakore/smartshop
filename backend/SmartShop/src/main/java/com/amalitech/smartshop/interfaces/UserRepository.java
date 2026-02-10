@@ -29,7 +29,7 @@ public interface UserRepository {
     Optional<User> findById(Long id);
 
     /**
-     * Save or update a user.
+     * Save a user.
      *
      * @param user the user to save
      * @return the saved user
@@ -37,6 +37,12 @@ public interface UserRepository {
     User save(User user);
 
 
+    /**
+     * Update a user.
+     *
+     * @param user the user to save
+     * @return the saved user
+     */
     User update(User user);
 
     /**

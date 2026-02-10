@@ -72,11 +72,7 @@ public class UserRepository implements com.amalitech.smartshop.interfaces.UserRe
     @Override
     public User save(User user) {
         try {
-            if (user.getId() == null) {
-                return insert(user);
-            } else {
-                return updateUser(user);
-            }
+            return insert(user);
         } catch (SQLException e) {
             throw new RuntimeException("Error saving user", e);
         }
@@ -125,7 +121,7 @@ public class UserRepository implements com.amalitech.smartshop.interfaces.UserRe
         ps.executeUpdate();
     }
     return user;
-}
+   }
 
 
     @Override
