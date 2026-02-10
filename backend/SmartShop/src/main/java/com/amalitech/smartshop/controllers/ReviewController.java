@@ -33,7 +33,7 @@ public class ReviewController {
 
     @Operation(summary = "Add a new review")
     @RequiresRole(UserRole.CUSTOMER)
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> addReview(
             @Valid @RequestBody AddReviewDTO request,
             HttpServletRequest httpRequest) {
@@ -45,7 +45,7 @@ public class ReviewController {
 
     @Operation(summary = "Update a review")
     @RequiresRole(UserRole.CUSTOMER)
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> updateReview(
             @PathVariable Long id,
             @Valid @RequestBody UpdateReviewDTO request,
@@ -77,7 +77,7 @@ public class ReviewController {
     }
 
     @Operation(summary = "Get all reviews")
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ReviewResponseDTO>>> getAllReviews(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {

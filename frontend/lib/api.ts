@@ -158,7 +158,7 @@ export const productApi = {
       body: JSON.stringify(data),
     }),
   addBulk: (data: any[]) =>
-    fetchApi<any[]>("/products/add/bulk", {
+    fetchApi<any[]>("/products/bulk", {
       method: "POST",
       body: JSON.stringify(data),
     }),
@@ -181,7 +181,7 @@ export const productApi = {
     if (params?.ascending !== undefined)
       query.append("ascending", params.ascending.toString());
     if (params?.algorithm) query.append("algorithm", params.algorithm);
-    return fetchApi<PagedResponse<any>>(`/products/public/all?${query}`);
+    return fetchApi<PagedResponse<any>>(`/products?${query}`);
   },
   getAllGraphQL: async () => {
     const query = `
@@ -215,7 +215,7 @@ export const productApi = {
     return { data: data.productById };
   },
   update: (id: number, data: any) =>
-    fetchApi<any>(`/products/update/${id}`, {
+    fetchApi<any>(`/products/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
@@ -287,12 +287,12 @@ export const inventoryApi = {
 // Review APIs
 export const reviewApi = {
   add: (data: { productId: number; rating: number; comment?: string }) =>
-    fetchApi<any>("/reviews/add", {
+    fetchApi<any>("/reviews", {
       method: "POST",
       body: JSON.stringify(data),
     }),
   getAll: (page = 0, size = 10) =>
-    fetchApi<PagedResponse<any>>(`/reviews/all?page=${page}&size=${size}`),
+    fetchApi<PagedResponse<any>>(`/reviews?page=${page}&size=${size}`),
   getById: (id: number) => fetchApi<any>(`/reviews/${id}`),
   getByProductId: (productId: number, page = 0, size = 10) =>
     fetchApi<PagedResponse<any>>(
@@ -301,7 +301,7 @@ export const reviewApi = {
   getUserReviews: (page = 0, size = 10) =>
     fetchApi<PagedResponse<any>>(`/reviews/user?page=${page}&size=${size}`),
   update: (id: number, data: { rating?: number; comment?: string }) =>
-    fetchApi<any>(`/reviews/update/${id}`, {
+    fetchApi<any>(`/reviews/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     }),
